@@ -115,6 +115,12 @@ void kernel_main( unsigned int r0, unsigned int r1, unsigned int atags )
 	int i = 0;
 	while(1)
     {
+		volatile int *reset = (int*) 0x39000000; 
+		if(*reset == 19) {
+			log_msg("RST REQUESTED");
+			asm("b _start");
+		}
+
         for(tim = 0; tim < delay * 10000; tim++)
             ;
 
