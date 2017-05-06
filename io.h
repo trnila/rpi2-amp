@@ -1,5 +1,4 @@
 /*
-
     Part of the Raspberry-Pi Bare Metal Tutorials
     Copyright (c) 2013, Brian Sidebotham
     All rights reserved.
@@ -28,36 +27,54 @@
 
 */
 
-extern int __bss_start__;
-extern int __bss_end__;
+/* The base address of the GPIO peripheral (ARM Physical Address) */
 
-//extern void kernel_main( unsigned int r0, unsigned int r1, unsigned int atags );
+    #define GPIO_BASE       0x3F200000UL
 
-void _cstartup( unsigned int r0, unsigned int r1, unsigned int r2 )
-{
-    /*__bss_start__ and __bss_end__ are defined in the linker script */
-    int* bss = &__bss_start__;
-    int* bss_end = &__bss_end__;
+    #define LED_GPFSEL      GPIO_GPFSEL1
+    #define LED_GPFBIT      18
+    #define LED_GPSET       GPIO_GPSET0
+    #define LED_GPCLR       GPIO_GPCLR0
+    #define LED_GPIO_BIT    16
 
-    /*
-        Clear the BSS section
+#define GPIO_GPFSEL0    0
+#define GPIO_GPFSEL1    1
+#define GPIO_GPFSEL2    2
+#define GPIO_GPFSEL3    3
+#define GPIO_GPFSEL4    4
+#define GPIO_GPFSEL5    5
 
-        See http://en.wikipedia.org/wiki/.bss for further information on the
-            BSS section
+#define GPIO_GPSET0     7
+#define GPIO_GPSET1     8
 
-        See https://sourceware.org/newlib/libc.html#Stubs for further
-            information on the c-library stubs
-    */
-    while( bss < bss_end )
-        *bss++ = 0
-;
+#define GPIO_GPCLR0     10
+#define GPIO_GPCLR1     11
 
-    /* We should never return from main ... */
-//    kernel_main( r0, r1, r2 );
+#define GPIO_GPLEV0     13
+#define GPIO_GPLEV1     14
 
-    /* ... but if we do, safely trap here*/
-//    while(1)
-//    {
-        /* EMPTY! */
-//    }
-}
+#define GPIO_GPEDS0     16
+#define GPIO_GPEDS1     17
+
+#define GPIO_GPREN0     19
+#define GPIO_GPREN1     20
+
+#define GPIO_GPFEN0     22
+#define GPIO_GPFEN1     23
+
+#define GPIO_GPHEN0     25
+#define GPIO_GPHEN1     26
+
+#define GPIO_GPLEN0     28
+#define GPIO_GPLEN1     29
+
+#define GPIO_GPAREN0    31
+#define GPIO_GPAREN1    32
+
+#define GPIO_GPAFEN0    34
+#define GPIO_GPAFEN1    35
+
+#define GPIO_GPPUD      37
+#define GPIO_GPPUDCLK0  38
+#define GPIO_GPPUDCLK1  39
+

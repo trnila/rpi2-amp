@@ -1,4 +1,4 @@
-OBJECTS=armc-03.o armc-08-cstartup.o armc-08-start.o log.o
+OBJECTS=start.o main.o log.o
 
 all: app.img
 
