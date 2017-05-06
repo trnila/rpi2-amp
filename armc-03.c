@@ -30,6 +30,8 @@
 
 */
 
+#include "api.h"
+
 /* The base address of the GPIO peripheral (ARM Physical Address) */
 
     #define GPIO_BASE       0x3F200000UL
@@ -98,7 +100,7 @@ volatile unsigned int veces;
 /** Main function - we'll never return from here */
 void kernel_main( unsigned int r0, unsigned int r1, unsigned int atags )
 {
-
+	log_msg("initialized");
 
    
     /* Assign the address of the GPIO peripheral (Using ARM Physical Address) */
@@ -109,7 +111,8 @@ void kernel_main( unsigned int r0, unsigned int r1, unsigned int atags )
     gpio[LED_GPFSEL] |= (1 << LED_GPFBIT);
 
     /* Never exit as there is no OS to exit to! */
-    
+   
+	int i = 0;
 	while(1)
     {
         for(tim = 0; tim < delay * 10000; tim++)
@@ -125,5 +128,6 @@ void kernel_main( unsigned int r0, unsigned int r1, unsigned int atags )
         /* Set the LED GPIO pin high ( Turn OK LED off for original Pi, and on
            for plus models )*/
         gpio[LED_GPSET] = (1 << LED_GPIO_BIT);
+		log_msg("tick %d", i++);
     }
 }
