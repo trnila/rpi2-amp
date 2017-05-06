@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include "mini-printf.h"
 
 
 char *_log = (char*) 0x30000000;
@@ -8,12 +9,7 @@ int log_msg(const char* msg, ...) {
 	va_list list;
 	va_start(list, msg);
 
-//	_log += vsprintf(_log, msg, list);
-	while(*msg) {
-		*_log = *msg;
-		_log++;
-		msg++;
-	}
+	_log += mini_vsnprintf(_log, 128, msg, list);
 
 	*_log = '\n'; _log++;
 	*_log = 0;
