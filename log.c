@@ -9,10 +9,10 @@ int log_msg(const char* msg, ...) {
 	va_list list;
 	va_start(list, msg);
 
-	_log += mini_vsnprintf(_log, 128, msg, list);
+	int size = mini_vsnprintf(_log, 128, msg, list);
 
-	*_log = '\n'; _log++;
-	*_log = 0;
+	_log[size] = '\n';
+	_log[size + 1] = 0;
 
 	va_end(list);
 }

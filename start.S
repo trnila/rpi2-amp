@@ -27,6 +27,11 @@
 .equ	SYS_mode,	0x1F
 .equ	No_Int,		0xC0
 
+.macro log letter
+	ldr r1,=\letter
+	ldr r2,=0x30000000
+	str r1, [r2]
+.endm
 
 _start:
 	ldr pc,reset_handler
@@ -47,7 +52,7 @@ _start:
 	fiq_handler:        .word irq
 
 reset:
-
+	log '0'
 	// Clear CORE3_MBOX3
 	ldr r1,=0x400000FC
 	ldr r3,=0xffffffff
@@ -60,40 +65,51 @@ reset:
 		cmp r1, r2
 		bne wait
 
+	log '1'
+
+	// relocate vector table
+	ldr r0, =_start
+	mcr p15, 0, r0, c12, c0, 0
+	mrc p15, 0, r0, c1, c0, 0
+	bic r0, #(1<<13)
+	mcr p15, 0, r0, c1, c0, 0
+
 	mrc p15, 0, r0, c1, c0, 0 @ Read System Control Register
 	@	orr r0, r0, #(1<<2)       @ dcache enable
 		orr r0, r0, #(1<<12)      @ icache enable
 			and r0, r0, #0xFFFFDFFF   @ turn on vector table at 0x0000000 (bit 12)
 		mcr p15, 0, r0, c1, c0, 0 @ Write System Control Register
 	
+	log '2'
 	
-	mov 	r2, # No_Int | IRQ_mode
-	msr		cpsr_c, r2
-	mov		sp, # IRQSTACK3
-
-	mov 	r2, # No_Int | FIQ_mode
-	msr		cpsr_c, r2
-	mov		sp, # FIQSTACK3
-
-	mov 	r2, # No_Int | HYP_mode
-	msr		cpsr_c, r2
-	mov		sp, # KSTACK3
-
-	// Set the stack pointer, which progresses downwards through memory
-	// Set it at 64MB which we know our application will not crash into
-	// and we also know will be available to the ARM CPU. No matter what
-	// settings we use to split the memory between the GPU and ARM CPU
+	
 	ldr     sp, =(768 * 1024 * 1024)		//SP to 0x3000000
+
+
+	
+#	mov 	r2, # No_Int | IRQ_mode
+#	msr		cpsr_c, r2
+#	mov		sp, # IRQSTACK3
+
+#	mov 	r2, # No_Int | FIQ_mode
+#	msr		cpsr_c, r2
+#	mov		sp, # FIQSTACK3
+
+#	mov 	r2, # No_Int | HYP_mode
+#	msr		cpsr_c, r2
+#	mov		sp, # KSTACK3
 
 	bl       kernel_main
 
 	// program shall not get here, if so, loop forever
 	loop:
+		log 'A'
 		b loop
 
 irq:
 	push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
 //	bl c_irq_handler
+	log 'B'
 	pop  {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
 	subs pc,lr,#4
 
