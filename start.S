@@ -1,24 +1,6 @@
 .section ".text.startup"
 .global _start
 
-.equ    FIQSTACK3 , 21504
-.equ    IRQSTACK3 , 22528
-.equ    KSTACK3   , 38912
-.equ    USTACK3   , 71680
-.equ    FIQSTACK2 , 21248
-.equ    IRQSTACK2 , 22272
-.equ    KSTACK2   , 34816
-.equ    USTACK2   , 63488
-.equ    FIQSTACK1 , 20992
-.equ    IRQSTACK1 , 22016
-.equ    KSTACK1   , 30720
-.equ    USTACK1   , 55296
-.equ    FIQSTACK0 , 20736
-.equ    IRQSTACK0 , 21760
-.equ    KSTACK0   , 26624
-.equ    USTACK0   , 47104
-
-
 .equ	USR_mode,	0x10
 .equ	FIQ_mode,	0x11
 .equ	IRQ_mode,	0x12
@@ -53,17 +35,27 @@ _start:
 
 reset:
 	log '0'
-	// Clear CORE3_MBOX3
-	ldr r1,=0x400000FC
-	ldr r3,=0xffffffff
-	str r3, [r1]
-
 	wait:
 		ldr r1,=0x39000000
 		ldr r1, [r1]
 		mov r2, #18
 		cmp r1, r2
 		bne wait
+
+mrs r0, cpsr
+eor r0, r0, #0x1a
+tst r0, #0x1f
+bic r0, r0, #0x1f
+orr r0, r0, #0xd3
+bne 1f
+orr r0, r0, #0x100
+adr lr, 2f
+msr spsr_cxsf, r0
+.word 0xe12ef30e /* msr elr_hyp, lr */
+.word 0xe160006e /* eret */
+1:	msr cpsr_c, r0
+2:	nop
+
 
 	log '1'
 
@@ -73,31 +65,30 @@ reset:
 	mrc p15, 0, r0, c1, c0, 0
 	bic r0, #(1<<13)
 	mcr p15, 0, r0, c1, c0, 0
-
-	mrc p15, 0, r0, c1, c0, 0 @ Read System Control Register
-	@	orr r0, r0, #(1<<2)       @ dcache enable
-		orr r0, r0, #(1<<12)      @ icache enable
-			and r0, r0, #0xFFFFDFFF   @ turn on vector table at 0x0000000 (bit 12)
-		mcr p15, 0, r0, c1, c0, 0 @ Write System Control Register
 	
-	log '2'
-	
-	
+	// set stack
 	ldr     sp, =(768 * 1024 * 1024)		//SP to 0x3000000
+	log '3'
 
 
-	
-#	mov 	r2, # No_Int | IRQ_mode
-#	msr		cpsr_c, r2
-#	mov		sp, # IRQSTACK3
+	// enable interrupts
+	mrs     r0, cpsr
+	bic     r0, r0, #0x80
+	msr     cpsr_c, r0
+	log '7'
 
-#	mov 	r2, # No_Int | FIQ_mode
-#	msr		cpsr_c, r2
-#	mov		sp, # FIQSTACK3
+	// enable fiq
+	mrs r0,cpsr
+	bic r0,r0,#0x40
+	msr cpsr_c,r0
 
-#	mov 	r2, # No_Int | HYP_mode
-#	msr		cpsr_c, r2
-#	mov		sp, # KSTACK3
+	ldr r1,=(1 << 3)
+	ldr r2,=0x40000010
+	str r1, [r2]
+
+	ldr r1,=(15)
+	ldr r2,=0x4000005C
+	str r1, [r2]
 
 	bl       kernel_main
 
@@ -107,9 +98,10 @@ reset:
 		b loop
 
 irq:
+	log 'B'
+	b irq
 	push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
 //	bl c_irq_handler
-	log 'B'
 	pop  {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
 	subs pc,lr,#4
 
