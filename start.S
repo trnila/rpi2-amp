@@ -25,11 +25,11 @@ _start:
 	ldr pc,irq_handler
 	ldr pc,fiq_handler
 	reset_handler:      .word reset
-	undefined_handler:  .word loop
-	swi_handler:        .word loop
-	prefetch_handler:   .word loop
-	data_handler:       .word loop
-	unused_handler:     .word loop
+	undefined_handler:  .word handle_und
+	swi_handler:        .word handle_swi
+	prefetch_handler:   .word handle_pref
+	data_handler:       .word handle_data
+	unused_handler:     .word handle_unu
 	irq_handler:        .word irq
 	fiq_handler:        .word irq
 
@@ -67,6 +67,12 @@ msr spsr_cxsf, r0
 	mcr p15, 0, r0, c1, c0, 0
 	
 	// set stack
+	mov 	r2, # No_Int | IRQ_mode
+	msr		cpsr_c, r2
+	ldr     sp, =(790 * 1024 * 1024)		//SP to 0x3000000
+
+	mov 	r2, # USR_mode
+	msr		cpsr_c, r2
 	ldr     sp, =(768 * 1024 * 1024)		//SP to 0x3000000
 	log '3'
 
@@ -82,10 +88,12 @@ msr spsr_cxsf, r0
 	bic r0,r0,#0x40
 	msr cpsr_c,r0
 
+	// enable 
 	ldr r1,=(1 << 3)
 	ldr r2,=0x40000010
 	str r1, [r2]
 
+	// enable all mailboxes
 	ldr r1,=(15)
 	ldr r2,=0x4000005C
 	str r1, [r2]
@@ -98,12 +106,19 @@ msr spsr_cxsf, r0
 		b loop
 
 irq:
-	log 'B'
-	b irq
-	push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
-//	bl c_irq_handler
-	pop  {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
-	subs pc,lr,#4
+	push	{r0, lr}				@ save regs
+
+	mov r0, #0
+	ldr r1, =0x4000006C 
+	ldr r0, [r1]
+
+	ldr r1,='L'
+	ldr r2,=0x30000300
+	str r1, [r2]
+
+	pop		{r0, lr}				@ restore regs
+	subs	pc, lr, #4				@ return from exception
+
 
 .globl PUT32
 PUT32:
@@ -114,3 +129,27 @@ PUT32:
 GET32:
 	ldr r0,[r0]
 	bx lr
+
+
+hang:
+	b hang
+
+handle_und:
+	log 'a'
+	b hang
+
+handle_swi:
+	log 'b'
+	b hang
+
+handle_pref:
+	log 'c'
+	b hang
+
+handle_data:
+	log 'd'
+	b hang
+
+handle_unu:
+	log 'e'
+	b hang
