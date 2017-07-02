@@ -92,6 +92,15 @@ msr spsr_cxsf, r0
 	ldr r2,=0x4000005C
 	str r1, [r2]
 
+	// enable timer
+	ldr r1, =3 // local interrupt to core 3 irq
+	ldr r2, =0x40000024
+	str r1, [r2]
+	// timer int3 enabled
+	ldr r1, =0x0F
+	ldr r2, =0x4000004C
+	str r1, [r2]
+
 	bl       kernel_main
 
 	// program shall not get here, if so, loop forever
