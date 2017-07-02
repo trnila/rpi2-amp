@@ -106,17 +106,20 @@ msr spsr_cxsf, r0
 		b loop
 
 irq:
-	push	{r0, lr}				@ save regs
+	push	{r0, r1, r2, lr}
 
-	mov r0, #0
-	ldr r1, =0x4000006C 
-	ldr r0, [r1]
+	# reset value in mailbox so irq handler will not repeat
+	ldr r0, =0xffffffff
+	ldr r1, =0x400000FC
+	str r0, [r1]
 
-	ldr r1,='L'
+	# increment value to debug that irq is running
 	ldr r2,=0x30000300
+	ldr r1,[r2]
+	add r1, r1, #1
 	str r1, [r2]
 
-	pop		{r0, lr}				@ restore regs
+	pop		{r0, r1, r2, lr}
 	subs	pc, lr, #4				@ return from exception
 
 
