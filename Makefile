@@ -1,4 +1,4 @@
-OBJECTS=start.o main.o log.o mini-printf.o
+OBJECTS=start.o main.o log.o mini-printf.o irq.o
 
 all: app.img
 
