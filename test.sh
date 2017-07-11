@@ -1,1 +1,1 @@
-python devmem.py -r 0x30000300
+./tools/devmem2 0x30000400
