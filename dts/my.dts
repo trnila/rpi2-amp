@@ -1,0 +1,13 @@
+#include "bcm2709-rpi-2-b.dts"
+
+/ {
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		baremetal {
+			reg = <0x30000000 0x8000000>;
+		};
+	};
+};
