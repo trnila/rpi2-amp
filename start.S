@@ -35,12 +35,6 @@ _start:
 
 reset:
 	log '0'
-	wait:
-		ldr r1,=0x39000000
-		ldr r1, [r1]
-		mov r2, #18
-		cmp r1, r2
-		bne wait
 
 mrs r0, cpsr
 eor r0, r0, #0x1a

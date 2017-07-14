@@ -22,11 +22,6 @@ void kernel_main() {
 
 	int i = 0;
 	for(;;) {
-		volatile int *reset = (int*) 0x39000000; 
-		if(*reset == 19) {
-			log_msg("RST REQUESTED");
-			asm("b _start");
-		}
 
 		for(tim = 0; tim < delay * 10000; tim++);
 
