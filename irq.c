@@ -11,6 +11,7 @@ void c_irq_handler() {
 	int source = REG(CORE3_IRQ_SOURCE);
 	if(source & INT_SRC_MBOX3) {
 		REG(CORE3_MBOX3_RDCLR) = 0xffffffff;
+		REG(0x30000440)++;
 	} else {
 		unsigned int val = get_ctrl();
 		if(!(val & (1 << 2))) {
@@ -18,6 +19,8 @@ void c_irq_handler() {
 			//not in interrupt?
 		} else {
 //			set_ctrl(val | (1 << 1));
+			asm("ldr r1, =10000");
+			asm("MCR p15, 0, r1, c14, c2, 0");
 		}
 	}
 }

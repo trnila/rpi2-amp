@@ -112,14 +112,6 @@ irq:
 
 	bl c_irq_handler
 
-//	ldr r1,=3
-//	MCR p15, 0, r1, c14, c2, 1
-//	ISB
-
-	// reset tval
-	ldr r1, =10000
-	MCR p15, 0, r1, c14, c2, 0
-
 	pop		{r0, r1, r2, lr}
 	subs	pc, lr, #4				@ return from exception
 
