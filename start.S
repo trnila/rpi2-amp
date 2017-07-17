@@ -85,9 +85,9 @@ msr spsr_cxsf, r0
 	MCRR p15, 2, r1, r2, c14
 
 	// enable timer
-	ldr r1, =3 // local interrupt to core 3 irq
-	ldr r2, =0x40000024
-	str r1, [r2]
+//	ldr r1, =3 // local interrupt to core 3 irq
+//	ldr r2, =0x40000024
+//	str r1, [r2]
 	// timer int3 enabled
 	// CNTPNS - non secure physical timer
 	ldr r1, =0x02
@@ -115,6 +115,10 @@ irq:
 //	ldr r1,=3
 //	MCR p15, 0, r1, c14, c2, 1
 //	ISB
+
+	// reset tval
+	ldr r1, =10000
+	MCR p15, 0, r1, c14, c2, 0
 
 	pop		{r0, r1, r2, lr}
 	subs	pc, lr, #4				@ return from exception

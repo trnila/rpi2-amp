@@ -14,7 +14,7 @@ void c_irq_handler() {
 	} else {
 		unsigned int val = get_ctrl();
 		if(!(val & (1 << 2))) {
-			REG(0x30000000) = val;
+			REG(0x30000000) = 'x';
 			//not in interrupt?
 		} else {
 //			set_ctrl(val | (1 << 1));
