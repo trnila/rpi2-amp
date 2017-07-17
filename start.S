@@ -65,7 +65,7 @@ msr spsr_cxsf, r0
 	msr		cpsr_c, r2
 	ldr     sp, =(790 * 1024 * 1024)		//SP to 0x3000000
 
-	mov 	r2, # USR_mode
+	mov 	r2, # SYS_mode
 	msr		cpsr_c, r2
 	ldr     sp, =(768 * 1024 * 1024)		//SP to 0x3000000
 	log '3'
@@ -78,9 +78,9 @@ msr spsr_cxsf, r0
 	log '7'
 
 	// enable fiq
-	mrs r0,cpsr
-	bic r0,r0,#0x40
-	msr cpsr_c,r0
+#	mrs r0,cpsr
+#	bic r0,r0,#0x40
+#	msr cpsr_c,r0
 
 	// enable 
 	ldr r1,=(1 << 3)
@@ -92,12 +92,22 @@ msr spsr_cxsf, r0
 	ldr r2,=0x4000005C
 	str r1, [r2]
 
+	// setup timer physical
+	ldr r1,=1 // enable timer
+	mcr p15, 0, r1, c14, c2, 1 // store value
+
+	// cval register
+	ldr r1,=100
+	ldr r2,=0
+	MCRR p15, 2, r1, r2, c14
+
 	// enable timer
 	ldr r1, =3 // local interrupt to core 3 irq
 	ldr r2, =0x40000024
 	str r1, [r2]
 	// timer int3 enabled
-	ldr r1, =0x0F
+	// CNTPNS - non secure physical timer
+	ldr r1, =0x02
 	ldr r2, =0x4000004C
 	str r1, [r2]
 
@@ -112,6 +122,8 @@ irq:
 	push	{r0, r1, r2, lr}
 
 	bl c_irq_handler
+
+	MRRC p15, 0, R1, R2, c14  // Read 64-bit CNTPCT into R1 (low word) and R2 (high word)
 
 	pop		{r0, r1, r2, lr}
 	subs	pc, lr, #4				@ return from exception
