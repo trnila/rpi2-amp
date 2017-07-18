@@ -75,21 +75,17 @@ msr spsr_cxsf, r0
 	ldr r2,=0x4000005C
 	str r1, [r2]
 
-	// setup timer physical
-	ldr r1,=1 // enable timer
+	// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
+	ldr r1,=1 // enable timer (ENABLE)
 	mcr p15, 0, r1, c14, c2, 1 // store value
 
-	// cval register
-	ldr r1,=100
-	ldr r2,=0
+	// (CNTP_CVAL, PL1 Physical Timer CompareValue register)
+	// holds compare value of timer
+	ldr r1,=100 // least-significant
+	ldr r2,=0 // most-significant
 	MCRR p15, 2, r1, r2, c14
 
-	// enable timer
-//	ldr r1, =3 // local interrupt to core 3 irq
-//	ldr r2, =0x40000024
-//	str r1, [r2]
-	// timer int3 enabled
-	// CNTPNS - non secure physical timer
+	// CNTPNS - enable interrupt for non-secure physical timer
 	ldr r1, =0x02
 	ldr r2, =0x4000004C
 	str r1, [r2]
