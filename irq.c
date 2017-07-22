@@ -20,7 +20,7 @@ void c_irq_handler() {
 		} else {
 //			set_ctrl(val | (1 << 1));
 			// CNTP_TVAL, PL1 Physical TimerValue register,			
-			asm("ldr r1, =10000");
+			asm("ldr r1, =20000000");
 			asm("MCR p15, 0, r1, c14, c2, 0");
 		}
 	}
