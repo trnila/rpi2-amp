@@ -146,7 +146,7 @@ void vPortEndScheduler( void )
 	is nothing to return to.  */
 }
 /*-----------------------------------------------------------*/
-
+int enabledTimer = 0;
 /*
  *	This is the TICK interrupt service routine, note. no SAVE/RESTORE_CONTEXT here
  *	as thats done in the bottom-half of the ISR.
@@ -155,13 +155,18 @@ void vPortEndScheduler( void )
  */
 void vTickISR (unsigned int nIRQ, void *pParam)
 {
+	if(!enabledTimer) {
+		return;
+	}
+
+	log_msg("in tick\n");
 	xTaskIncrementTick();
 
 	#if configUSE_PREEMPTION == 1
 	vTaskSwitchContext();
 	#endif
 
-	pRegs->CLI = 0;			// Acknowledge the timer interrupt.
+//	pRegs->CLI = 0;			// Acknowledge the timer interrupt.
 }
 
 /*
@@ -169,6 +174,9 @@ void vTickISR (unsigned int nIRQ, void *pParam)
  */
 static void prvSetupTimerInterrupt( void )
 {
+	enabledTimer = 1;
+	log_msg("IN\n");
+	return;
 	unsigned long ulCompareMatch;
 	
 

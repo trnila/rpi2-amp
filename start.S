@@ -76,25 +76,25 @@ msr spsr_cxsf, r0
 	str r1, [r2]
 
 	// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
-	ldr r1,=1 // enable timer (ENABLE)
-	mcr p15, 0, r1, c14, c2, 1 // store value
+//	ldr r1,=1 // enable timer (ENABLE)
+//	mcr p15, 0, r1, c14, c2, 1 // store value
 
 	// (CNTP_CVAL, PL1 Physical Timer CompareValue register)
 	// holds compare value of timer
-	ldr r1,=100 // least-significant
-	ldr r2,=0 // most-significant
-	MCRR p15, 2, r1, r2, c14
+//	ldr r1,=100 // least-significant
+//	ldr r2,=0 // most-significant
+//	MCRR p15, 2, r1, r2, c14
 
 	// CNTPNS - enable interrupt for non-secure physical timer
-	ldr r1, =0x02
-	ldr r2, =0x4000004C
-	str r1, [r2]
+//	ldr r1, =0x02
+//	ldr r2, =0x4000004C
+//	str r1, [r2]
 
 	// enable interrupts
-	mrs     r0, cpsr
-	bic     r0, r0, #0x80
-	msr     cpsr_c, r0
-	log '7'
+//	mrs     r0, cpsr
+//	bic     r0, r0, #0x80
+//	msr     cpsr_c, r0
+//	log '7'
 
 	bl       kernel_main
 

@@ -25,7 +25,8 @@ app.img: app.elf
 	objcopy $^ -O binary $@
 
 clean:
-	rm -f *.o app.img app.elf
+	rm -f app.img app.elf
+	find -name "*.o" -delete
 	make -C tools clean
 
 run: app.img

@@ -1,3 +1,6 @@
+#include <FreeRTOS.h>
+#include <task.h>
+
 #include "api.h"
 #include "io.h"
 
@@ -10,8 +13,24 @@ volatile unsigned int* gpio;
 volatile unsigned int tim;
 volatile unsigned int veces;
 
+void task1(void* param) {
+	int i = 0;
+	for(;;) {
+		log_msg("TICK: %d\n", i);
+		vTaskDelay(1000);
+	}
+}
+
+
 void kernel_main() {
 	log_msg("initialized\n");
+
+	xTaskCreate(task1, "LED_0", 128, NULL, 0, NULL);
+
+	vTaskStartScheduler();
+
+	log_msg("We are lost\n");
+
 
 	/* Assign the address of the GPIO peripheral (Using ARM Physical Address) */
 	gpio = (unsigned int*)GPIO_BASE;

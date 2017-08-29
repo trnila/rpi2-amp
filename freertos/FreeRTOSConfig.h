@@ -67,6 +67,8 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
+#define TRACE log_msg("AT %s %s:%d\n", __func__, __FILE__, __LINE__)
+
 /*-----------------------------------------------------------
  * Application specific definitions.
  *
@@ -78,6 +80,8 @@
  *
  * See http://www.freertos.org/a00110.html.
  *----------------------------------------------------------*/
+
+#define configASSERT(x) if(x) log_msg("Assert " __FILE__ ":%d\n", __LINE__)
 
 #define configUSE_PREEMPTION		1
 #define configUSE_IDLE_HOOK			0
