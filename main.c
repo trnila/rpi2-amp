@@ -11,6 +11,7 @@ volatile unsigned int tim;
 volatile unsigned int veces;
 
 void kernel_main() {
+	log_msg("initialized");
 
 	/* Assign the address of the GPIO peripheral (Using ARM Physical Address) */
 	gpio = (unsigned int*)GPIO_BASE;
@@ -33,16 +34,6 @@ void kernel_main() {
 		/* Set the LED GPIO pin high ( Turn OK LED off for original Pi, and on
 		   for plus models )*/
 		gpio[LED_GPSET] = (1 << LED_GPIO_BIT);
-		
-		#define REG(addr) (*((int*) addr))
-
-		i++;
-		if(i&1) {
-			REG(0x30000000) = 'a';
-		} else {
-			REG(0x30000000) = 'b';
-		}
-
-
+		log_msg("tick %d", i++);
 	}
 }
