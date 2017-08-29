@@ -1,13 +1,22 @@
-OBJECTS=start.o main.o log.o mini-printf.o irq.o
+OBJECTS=start.o main.o log.o mini-printf.o irq.o \
+		freertos/croutine.o \
+		freertos/event_groups.o \
+		freertos/list.o \
+		freertos/tasks.o \
+		freertos/timers.o \
+		freertos/portable/GCC/RaspberryPi/port.o \
+		freertos/portable/GCC/RaspberryPi/portisr.o \
+		drivers/gpio.o \
+		drivers/irq.o \
+		freertos/portable/MemMang/heap_1.o
+
+
+CFLAGS=-I. -I./freertos/include/ -I./freertos/ -I./freertos/portable/GCC/RaspberryPi/ -march=armv7-a
 
 all: app.img
 
 %.o: %.S
-	gcc -c $^ -o $@ -march=armv7-a
-
-
-%.o: %.c
-	gcc -c $^ -o $@ -march=armv7-a
+	gcc -c $^ -o $@ ${CFLAGS} 
 
 app.elf: $(OBJECTS)
 	ld -Ttext 0x20000000 -nostartfile -T rpi.x $^ -o $@
