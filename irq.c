@@ -12,6 +12,7 @@ void c_irq_handler() {
 	if(source & INT_SRC_MBOX3) {
 		REG(CORE3_MBOX3_RDCLR) = 0xffffffff;
 		REG(0x30000440)++;
+		REG(0x400000A8) = 42;
 	} else {
 		unsigned int val = get_ctrl();
 		if(!(val & (1 << 2))) {
