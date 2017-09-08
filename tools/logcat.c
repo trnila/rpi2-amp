@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
+#define LOG_SIZE 4096
+
 int main(int argc, char **argv) {
 	if(argc != 2) {
 		printf("%s addr\n", argv[0]);
@@ -33,7 +35,12 @@ int main(int argc, char **argv) {
 	close(file);
 
 	addr += position - offset;
-	printf("%s", addr);
+
+	int i;
+	for(i = 0; i < LOG_SIZE && *addr; i++) {
+		printf("%c", *addr);
+		addr++;
+	}
 	
 	return 0;
 }
