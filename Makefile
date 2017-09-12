@@ -19,7 +19,7 @@ all: app.img
 	gcc -c $^ -o $@ ${CFLAGS} 
 
 app.elf: $(OBJECTS)
-	ld -Ttext 0x20000000 -nostartfile -T rpi.x $^ -o $@
+	ld -nostartfile -T rpi.x $^ -o $@
 
 app.img: app.elf
 	objcopy $^ -O binary $@
@@ -31,6 +31,9 @@ clean:
 
 run: app.img
 	make -C tools 
+	./tools/clearmem || true
+	./tools/devmem2 0x30000000 w 0
+	./tools/devmem2 0x30000004 w 0
 	./tools/loadmetal app.img
 	./tools/devmem2 0x400000bc w 0x20000000 # set address of our first instruction
 	

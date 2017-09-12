@@ -1,5 +1,7 @@
 .section ".text.startup"
 .global _start
+.global restoreContext
+.global fail
 
 .equ	USR_mode,	0x10
 .equ	FIQ_mode,	0x11
@@ -67,13 +69,13 @@ msr spsr_cxsf, r0
 
 	mov 	r2, # SYS_mode
 	msr		cpsr_c, r2
-	ldr     sp, =(768 * 1024 * 1024)		//SP to 0x3000000
+	ldr     sp, =(760 * 1024 * 1024)		//SP to 0x3000000
 	log '3'
 
 	// enable all mailboxes
-	ldr r1,=(15)
-	ldr r2,=0x4000005C
-	str r1, [r2]
+//	ldr r1,=(15)
+//	ldr r2,=0x4000005C
+//	str r1, [r2]
 
 	// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
 //	ldr r1,=1 // enable timer (ENABLE)
@@ -94,7 +96,7 @@ msr spsr_cxsf, r0
 //	mrs     r0, cpsr
 //	bic     r0, r0, #0x80
 //	msr     cpsr_c, r0
-//	log '7'
+	log '7'
 
 	bl       kernel_main
 
@@ -154,3 +156,24 @@ handle_data:
 handle_unu:
 	log 'e'
 	b hang
+
+restoreContexto:
+	ldr r0, =pxCurrentTCB
+	ldr r0, [r0]
+	ldr lr, [r0]
+
+	ldr r10, =0x30000004
+	ldr r0, =pxCurrentTCB
+	str r0, [r10]
+
+	LDMFD	LR, {R0-R14}^
+	LDR		LR, [LR, #+60] // 15 regs * 4
+	log '1'
+
+	loopme:
+		b loopme
+#	SUBS		PC, LR, #4
+	fail:
+		log '9'
+		b fail
+

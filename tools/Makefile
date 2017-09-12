@@ -1,4 +1,6 @@
-all: loadmetal devmem2 logcat
+OBJECTS=loadmetal devmem2 logcat clearmem
+
+all: $(OBJECTS)
 
 clean:
-	rm -f loadmetal devmem2
+	rm -f $(OBJECTS)

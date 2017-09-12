@@ -47,7 +47,6 @@ void vPortISRStartFirstTask( void );
 /*-----------------------------------------------------------*/
 
 int g_bStarted = 0;
-
 void vPortISRStartFirstTask( void )
 {
 
@@ -58,22 +57,26 @@ void vPortISRStartFirstTask( void )
 	 */
 
 	g_bStarted++;
+TRACE;
 
 	__asm volatile("mrs 	r0,cpsr");		// Read in the cpsr register.
 	__asm volatile("bic		r0,r0,#0x80");	// Clear bit 8, (0x80) -- Causes IRQs to be enabled
 	__asm volatile("msr		cpsr_c, r0");	// Write it back to the CPSR register
 //	__asm volatile("swi		0");			// Force a task switch with SWI!
 //	__asm volatile("nop");
+TRACE;
 
 	/* Simply start the scheduler.  This is included here as it can only be
 	called from ARM mode. */
 	portRESTORE_CONTEXT();
+TRACE;
 	__asm volatile (
 		"LDMFD	SP!, {LR}	\n"
 		"SUB	LR,	LR, #4	\n"
 		
 		"BX		LR			\n"
 	);
+TRACE;
 }
 /*-----------------------------------------------------------*/
 
@@ -172,12 +175,13 @@ in a variable, which is then saved as part of the stack context. */
 void vPortEnterCritical( void )
 {
 	/* Disable interrupts as per portDISABLE_INTERRUPTS(); 							*/
-	__asm volatile ( 
-		"STMDB	SP!, {R0}			\n\t"	/* Push R0.								*/
-		"MRS	R0, CPSR			\n\t"	/* Get CPSR.							*/
-		"ORR	R0, R0, #0xC0		\n\t"	/* Disable IRQ, FIQ.					*/
-		"MSR	CPSR, R0			\n\t"	/* Write back modified value.			*/
-		"LDMIA	SP!, {R0}" );				/* Pop R0.								*/
+//	__asm volatile ( 
+//		"STMDB	SP!, {R0}			\n\t"	/* Push R0.								*/
+//		"MRS	R0, CPSR			\n\t"	/* Get CPSR.							*/
+//		"ORR	R0, R0, #0xC0		\n\t"	/* Disable IRQ, FIQ.					*/
+//		"MSR	CPSR, R0			\n\t"	/* Write back modified value.			*/
+//		"LDMIA	SP!, {R0}" );				/* Pop R0.								*/
+// TODO: dissable interrupts
 
 	/* Now interrupts are disabled ulCriticalNesting can be accessed 
 	directly.  Increment ulCriticalNesting to keep a count of how many times
@@ -196,13 +200,14 @@ void vPortExitCritical( void )
 		re-enabled. */
 		if( ulCriticalNesting == portNO_CRITICAL_NESTING )
 		{
+			//TODO: enable interrupts
 			/* Enable interrupts as per portEXIT_CRITICAL().					*/
-			__asm volatile ( 
-				"STMDB	SP!, {R0}		\n\t"	/* Push R0.						*/	
-				"MRS	R0, CPSR		\n\t"	/* Get CPSR.					*/	
-				"BIC	R0, R0, #0xC0	\n\t"	/* Enable IRQ, FIQ.				*/	
-				"MSR	CPSR, R0		\n\t"	/* Write back modified value.	*/	
-				"LDMIA	SP!, {R0}" );			/* Pop R0.						*/
+//			__asm volatile ( 
+//				"STMDB	SP!, {R0}		\n\t"	/* Push R0.						*/	
+//				"MRS	R0, CPSR		\n\t"	/* Get CPSR.					*/	
+//				"BIC	R0, R0, #0xC0	\n\t"	/* Enable IRQ, FIQ.				*/	
+//				"MSR	CPSR, R0		\n\t"	/* Write back modified value.	*/	
+//				"LDMIA	SP!, {R0}" );			/* Pop R0.						*/
 		}
 	}
 }

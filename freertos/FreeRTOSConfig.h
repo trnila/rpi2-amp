@@ -81,7 +81,7 @@
  * See http://www.freertos.org/a00110.html.
  *----------------------------------------------------------*/
 
-#define configASSERT(x) if(x) log_msg("Assert " __FILE__ ":%d\n", __LINE__)
+#define configASSERT(x) if((x) == 0) log_msg("Assert " __FILE__ ":%d\n", __LINE__)
 
 #define configUSE_PREEMPTION		1
 #define configUSE_IDLE_HOOK			0
@@ -96,6 +96,7 @@
 #define configUSE_16_BIT_TICKS		0
 #define configIDLE_SHOULD_YIELD		1
 #define configUSE_APPLICATION_TASK_TAG	1
+#define configUSE_MALLOC_FAILED_HOOK 1
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 		0

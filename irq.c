@@ -4,9 +4,12 @@
 
 int get_ctrl();
 
+void vTickISR (unsigned int nIRQ, void *pParam);
 void c_irq_handler() {
 	// increment number to we can see that irq handler has been triggered
 	REG(0x30000400)++;
+
+	vTickISR(0, 0);
 
 	int source = REG(CORE3_IRQ_SOURCE);
 	if(source & INT_SRC_MBOX3) {

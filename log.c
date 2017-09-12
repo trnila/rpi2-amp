@@ -7,13 +7,14 @@ char _log[LOG_SIZE];
 int pos = 0;
 
 int log_msg(const char* msg, ...) {
-	char line[64];
+	char line[128];
 
 	va_list list;
 	va_start(list, msg);
 
 	int size = mini_vsnprintf(line, sizeof(line), msg, list);
 	va_end(list);
+	line[127]=0;
 
 	char *r = line;
 	do {
@@ -24,4 +25,5 @@ int log_msg(const char* msg, ...) {
 		}
 		r++;
 	} while(*r);
+	_log[pos] = 0;
 }

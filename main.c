@@ -21,15 +21,29 @@ void task1(void* param) {
 	}
 }
 
-
 void kernel_main() {
-	log_msg("initialized\n");
+	portDISABLE_INTERRUPTS();
 
-	xTaskCreate(task1, "LED_0", 128, NULL, 0, NULL);
+	log_msg("initialized now\n");
+	int* mem = pvPortMalloc( 16 );
+	log_msg("allocated\n");
+
+	log_msg("CREATING TASK\n");
+	BaseType_t msg = xTaskCreate(task1, "LED_0", 128, NULL, 0, NULL);
+	if(msg != pdPASS) {
+		if(msg == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY) {
+			log_msg("xtaskcreate failed: memory\n");
+		} else {
+			log_msg("xtaskcreate failed: unknown\n");
+		}
+		for(;;) {}
+	}
+	log_msg("created task\n");
 
 	vTaskStartScheduler();
 
 	log_msg("We are lost\n");
+	for(;;) {}
 
 
 	/* Assign the address of the GPIO peripheral (Using ARM Physical Address) */
@@ -55,4 +69,9 @@ void kernel_main() {
 		gpio[LED_GPSET] = (1 << LED_GPIO_BIT);
 		log_msg("tick %d\n", i++);
 	}
+}
+
+void vApplicationMallocFailedHook(void) {
+	log_msg("malloc failed\n");
+	for(;;) {}
 }

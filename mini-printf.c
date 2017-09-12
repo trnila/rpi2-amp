@@ -1,18 +1,36 @@
-unsigned int _mod(unsigned int num, unsigned int denom) {
-	while(num >= denom) {
-		num -= denom;	
+unsigned int _div(unsigned int num, unsigned int den) {
+	unsigned int quot = 0, qbit = 1;
+
+	if (den == 0)
+	{
+		return 0;
 	}
-	return num;
+
+	/*
+	 * left-justify denominator and count shift
+	 */
+	while ((signed int) den >= 0)
+	{
+		den <<= 1;
+		qbit <<= 1;
+	}
+
+	while (qbit)
+	{
+		if (den <= num)
+		{
+			num -= den;
+			quot += qbit;
+		}
+		den >>= 1;
+		qbit >>= 1;
+	}
+
+	return quot;
 }
 
-
-unsigned int _div(unsigned int num, unsigned int denom) {
-	unsigned int n = 0;
-	while(num >= denom) {
-		num -= denom;	
-		n++;
-	}
-	return n;
+unsigned int _mod(unsigned int num, unsigned int denom) {
+	return num - _div(num, denom) * denom;
 }
 
 /*
@@ -66,7 +84,9 @@ static unsigned int
 mini_strlen(const char *s)
 {
 	unsigned int len = 0;
-	while (s[len] != '\0') len++;
+	while (s[len] != '\0') {
+		len++;
+	}
 	return len;
 }
 
@@ -94,8 +114,8 @@ mini_itoa(int value, unsigned int radix, unsigned int uppercase, unsigned int un
 		value = _div(value, radix);
 	} while (value > 0);
 
-	for (i = (pbuffer - buffer); i < zero_pad; i++)
-		*(pbuffer++) = '0';
+//	for (i = (pbuffer - buffer); i < zero_pad; i++)
+//		*(pbuffer++) = '0';
 
 	if (negative)
 		*(pbuffer++) = '-';
@@ -138,8 +158,10 @@ mini_vsnprintf(char *buffer, unsigned int buffer_len, const char *fmt, va_list v
 			len = buffer_len - (pbuffer - buffer) - 1;
 
 		/* Copy to buffer */
-		for (i = 0; i < len; i++)
+		for (i = 0; i < len; i++){
+			(*((int*)0x30000000))++;
 			*(pbuffer++) = s[i];
+		}
 		*(pbuffer) = '\0';
 
 		return len;

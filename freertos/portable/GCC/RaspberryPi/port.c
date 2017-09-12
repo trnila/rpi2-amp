@@ -54,8 +54,11 @@ extern void vPortISRStartFirstTask( void );
 portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE pxCode, void *pvParameters )
 {
 portSTACK_TYPE *pxOriginalTOS;
+log_msg("code: %x\n", pxCode);
+log_msg("top of stack: %x\n", pxTopOfStack);
 
 	pxOriginalTOS = pxTopOfStack;
+	*pxTopOfStack = 0x42424242;
 
 	/* To ensure asserts in tasks.c don't fail, although in this case the assert
 	is not really required. */
@@ -67,12 +70,13 @@ portSTACK_TYPE *pxOriginalTOS;
 	/* First on the stack is the return address - which in this case is the
 	start of the task.  The offset is added to make the return address appear
 	as it would within an IRQ ISR. */
-	*pxTopOfStack = ( portSTACK_TYPE ) pxCode + portINSTRUCTION_SIZE;		
+	//*pxTopOfStack = ( portSTACK_TYPE ) pxCode;// + portINSTRUCTION_SIZE;		
+	*pxTopOfStack = pxCode; // R15 - PC
 	pxTopOfStack--;
 
-	*pxTopOfStack = ( portSTACK_TYPE ) 0xaaaaaaaa;	/* R14 */
+	*pxTopOfStack = ( portSTACK_TYPE ) 0xaaaaaaaa;	/* R14 - LR */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) pxOriginalTOS; /* Stack used when task starts goes in R13. */
+	*pxTopOfStack = ( portSTACK_TYPE ) pxOriginalTOS; /* Stack used when task starts goes in R13. SP */
 	pxTopOfStack--;
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x12121212;	/* R12 */
 	pxTopOfStack--;	
@@ -102,32 +106,35 @@ portSTACK_TYPE *pxOriginalTOS;
 	/* When the task starts it will expect to find the function parameter in
 	R0. */
 	*pxTopOfStack = ( portSTACK_TYPE ) pvParameters; /* R0 */
-	pxTopOfStack--;
+//	pxTopOfStack--;
 
 	/* The last thing onto the stack is the status register, which is set for
 	system mode, with interrupts enabled. */
-	*pxTopOfStack = ( portSTACK_TYPE ) portINITIAL_SPSR;
+//	*pxTopOfStack = ( portSTACK_TYPE ) portINITIAL_SPSR;
 
-	if( ( ( unsigned long ) pxCode & 0x01UL ) != 0x00 )
-	{
+//	if( ( ( unsigned long ) pxCode & 0x01UL ) != 0x00 )
+//	{
 		/* We want the task to start in thumb mode. */
-		*pxTopOfStack |= portTHUMB_MODE_BIT;
-	}
+//		*pxTopOfStack |= portTHUMB_MODE_BIT;
+//		log_msg("thumb mode\n");
+//	}
 
-	pxTopOfStack--;
+//	pxTopOfStack--;
 
 	/* Some optimisation levels use the stack differently to others.  This 
 	means the interrupt flags cannot always be stored on the stack and will
 	instead be stored in a variable, which is then saved as part of the
 	tasks context. */
-	*pxTopOfStack = portNO_CRITICAL_SECTION_NESTING;
+//	*pxTopOfStack = portNO_CRITICAL_SECTION_NESTING;
 
+log_msg("end of stack: %x\n", pxTopOfStack);
 	return pxTopOfStack;
 }
 /*-----------------------------------------------------------*/
 
 portBASE_TYPE xPortStartScheduler( void )
 {
+	TRACE;
 	/* Start the timer that generates the tick ISR.  Interrupts are disabled
 	here already. */
 	prvSetupTimerInterrupt();
@@ -142,11 +149,11 @@ portBASE_TYPE xPortStartScheduler( void )
 
 void vPortEndScheduler( void )
 {
+	TRACE;
 	/* It is unlikely that the ARM port will require this function as there
 	is nothing to return to.  */
 }
 /*-----------------------------------------------------------*/
-int enabledTimer = 0;
 /*
  *	This is the TICK interrupt service routine, note. no SAVE/RESTORE_CONTEXT here
  *	as thats done in the bottom-half of the ISR.
@@ -155,10 +162,6 @@ int enabledTimer = 0;
  */
 void vTickISR (unsigned int nIRQ, void *pParam)
 {
-	if(!enabledTimer) {
-		return;
-	}
-
 	log_msg("in tick\n");
 	xTaskIncrementTick();
 
@@ -174,8 +177,21 @@ void vTickISR (unsigned int nIRQ, void *pParam)
  */
 static void prvSetupTimerInterrupt( void )
 {
-	enabledTimer = 1;
-	log_msg("IN\n");
+TRACE;
+
+asm(
+	// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
+	"ldr r1,=1 // enable timer (ENABLE)"
+	"mcr p15, 0, r1, c14, c2, 1 // store value"
+
+	// (CNTP_CVAL, PL1 Physical Timer CompareValue register)
+	// holds compare value of timer
+	"ldr r1,=100 // least-significant"
+	"ldr r2,=0 // most-significant"
+	"MCRR p15, 2, r1, r2, c14"
+);
+
+TRACE;
 	return;
 	unsigned long ulCompareMatch;
 	
