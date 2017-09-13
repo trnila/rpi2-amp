@@ -58,10 +58,15 @@ log_msg("code: %x\n", pxCode);
 log_msg("top of stack: %x\n", pxTopOfStack);
 
 	pxOriginalTOS = pxTopOfStack;
+
 	*pxTopOfStack = 0x42424242;
+	pxTopOfStack--;
 
 	/* To ensure asserts in tasks.c don't fail, although in this case the assert
 	is not really required. */
+
+	// current processor state -> sys mode
+	*pxTopOfStack = 0x1f;
 	pxTopOfStack--;
 
 	/* Setup the initial stack of the task.  The stack is set exactly as 
@@ -75,8 +80,8 @@ log_msg("top of stack: %x\n", pxTopOfStack);
 	pxTopOfStack--;
 
 	*pxTopOfStack = ( portSTACK_TYPE ) 0xaaaaaaaa;	/* R14 - LR */
-	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) pxOriginalTOS; /* Stack used when task starts goes in R13. SP */
+//	pxTopOfStack--;	
+//	*pxTopOfStack = ( portSTACK_TYPE ) pxOriginalTOS; /* Stack used when task starts goes in R13. SP */
 	pxTopOfStack--;
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x12121212;	/* R12 */
 	pxTopOfStack--;	
@@ -106,7 +111,7 @@ log_msg("top of stack: %x\n", pxTopOfStack);
 	/* When the task starts it will expect to find the function parameter in
 	R0. */
 	*pxTopOfStack = ( portSTACK_TYPE ) pvParameters; /* R0 */
-//	pxTopOfStack--;
+
 
 	/* The last thing onto the stack is the status register, which is set for
 	system mode, with interrupts enabled. */

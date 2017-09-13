@@ -95,7 +95,7 @@ void vPortYieldProcessor( void )
 	/* Within an IRQ ISR the link register has an offset from the true return 
 	address, but an SWI ISR does not.  Add the offset manually so the same 
 	ISR return code can be used in both cases. */
-	__asm volatile ( "ADD		LR, LR, #4" );
+//	__asm volatile ( "ADD		LR, LR, #4" );
 
 	/* Perform the context switch.  First save the context of the current task. */
 	portSAVE_CONTEXT();
@@ -128,6 +128,8 @@ extern void irqHandler(void);
 
 void vFreeRTOS_ISR( void ) __attribute__((naked));
 void vFreeRTOS_ISR( void ) {
+	TRACE;
+	for(;;) {}
 	portSAVE_CONTEXT();
 	irqHandler();
 	portRESTORE_CONTEXT();	

@@ -54,19 +54,15 @@ extern "C" {
 {																						\
 	extern volatile void * volatile pxCurrentTCB;										\
 	extern volatile unsigned portLONG ulCriticalNesting;								\
-	log_msg("addr: %x\n", pxCurrentTCB); \
+	/*log_msg("restoring: '%s' .addr: %x\n", ((char*)pxCurrentTCB) + 52,  pxCurrentTCB);*/ \
 	__asm volatile( \
 		"ldr r0, =pxCurrentTCB\n" \
 		"ldr r1, [r0]\n" \
 		"ldr sp, [r1]\n"\
 		\
 		"pop {r0-r12, r14}\n" \
-		"ldr pc, [sp, #4]\n" \
-		"ldr r0,=0x30000004\n" \
-		"str sp, [r0]\n" \
-		"bl fail\n" \
-	); \
-	log_msg("end"); \
+		"RFEIA	sp!\n" \
+	); \ 
 }
 /*-----------------------------------------------------------*/
 
@@ -74,7 +70,20 @@ extern "C" {
 {																			\
 	extern volatile void * volatile pxCurrentTCB;							\
 	extern volatile unsigned portLONG ulCriticalNesting;					\
+/*	log_msg("savstoring: '%s' .addr: %x\n", ((char*)pxCurrentTCB) + 52,  pxCurrentTCB);*/ \
 																			\
+	__asm volatile( \
+		"srsdb sp!, 0x1f\n" /*store lr and spsr to stack in sys_mode (0x1ff) */\
+		"cps 0x1f\n" /* enter sys_mode */ \
+		"push {r0-r12, r14}\n" \
+		\
+		"ldr r0, =pxCurrentTCB\n" \
+		"ldr r1, [r0]\n" \
+		"str sp, [r1]\n" \
+	); \
+}
+
+#define test_ \
 	/* Push R0 as we are going to use the register. */						\
 	__asm volatile (														\
 	"STMDB	SP!, {R0}												\n\t"	\
@@ -97,15 +106,10 @@ extern "C" {
 	/* Push all the system mode registers onto the task stack. */			\
 	"STMDB	LR,{R0-LR}^												\n\t"	\
 	"NOP															\n\t"	\
-	"SUB	LR, LR, #60												\n\t"	\
-																			\
-	/* Push the SPSR onto the task stack. */								\
+	"SUB	LR, LR, #60-4											\n\t"	\
+		\
 	"MRS	R0, SPSR												\n\t"	\
-	"STMDB	LR!, {R0}												\n\t"	\
-																			\
-	"LDR	R0, =ulCriticalNesting									\n\t"	\
-	"LDR	R0, [R0]												\n\t"	\
-	"STMDB	LR!, {R0}												\n\t"	\
+		"STMDB	LR!, {R0}\n" \
 																			\
 	/* Store the new top of stack for the task. */							\
 	"LDR	R0, =pxCurrentTCB										\n\t"	\
@@ -114,7 +118,7 @@ extern "C" {
 	);																		\
 	( void ) ulCriticalNesting;												\
 	( void ) pxCurrentTCB;													\
-}
+} 
 
 extern void vTaskSwitchContext( void );
 #define portYIELD_FROM_ISR()		vTaskSwitchContext()

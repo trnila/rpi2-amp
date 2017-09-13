@@ -28,7 +28,7 @@ _start:
 	ldr pc,fiq_handler
 	reset_handler:      .word reset
 	undefined_handler:  .word handle_und
-	swi_handler:        .word handle_swi
+	swi_handler:        .word vPortYieldProcessor
 	prefetch_handler:   .word handle_pref
 	data_handler:       .word handle_data
 	unused_handler:     .word handle_unu
@@ -65,11 +65,16 @@ msr spsr_cxsf, r0
 	// set stack
 	mov 	r2, # No_Int | IRQ_mode
 	msr		cpsr_c, r2
-	ldr     sp, =(790 * 1024 * 1024)		//SP to 0x3000000
+	ldr     sp, =(790 * 1024 * 1024)
 
 	mov 	r2, # SYS_mode
 	msr		cpsr_c, r2
-	ldr     sp, =(760 * 1024 * 1024)		//SP to 0x3000000
+	ldr     sp, =(760 * 1024 * 1024)
+
+	mov 	r2, # SVC_mode
+	msr		cpsr_c, r2
+	ldr     sp, =(780 * 1024 * 1024)
+
 	log '3'
 
 	// enable all mailboxes
@@ -108,7 +113,7 @@ msr spsr_cxsf, r0
 irq:
 	push	{r0, r1, r2, lr}
 
-	bl c_irq_handler
+//	bl c_irq_handler
 
 	pop		{r0, r1, r2, lr}
 	subs	pc, lr, #4				@ return from exception
@@ -141,7 +146,7 @@ handle_und:
 	log 'a'
 	b hang
 
-handle_swi:
+handle_swi: 
 	log 'b'
 	b hang
 
@@ -157,23 +162,7 @@ handle_unu:
 	log 'e'
 	b hang
 
-restoreContexto:
-	ldr r0, =pxCurrentTCB
-	ldr r0, [r0]
-	ldr lr, [r0]
-
-	ldr r10, =0x30000004
-	ldr r0, =pxCurrentTCB
-	str r0, [r10]
-
-	LDMFD	LR, {R0-R14}^
-	LDR		LR, [LR, #+60] // 15 regs * 4
-	log '1'
-
-	loopme:
-		b loopme
-#	SUBS		PC, LR, #4
-	fail:
-		log '9'
-		b fail
+fail:
+	log '9'
+	b fail
 

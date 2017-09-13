@@ -14,7 +14,6 @@ int log_msg(const char* msg, ...) {
 
 	int size = mini_vsnprintf(line, sizeof(line), msg, list);
 	va_end(list);
-	line[127]=0;
 
 	char *r = line;
 	do {

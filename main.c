@@ -16,8 +16,9 @@ volatile unsigned int veces;
 void task1(void* param) {
 	int i = 0;
 	for(;;) {
-		log_msg("TICK: %d\n", i);
-		vTaskDelay(1000);
+		log_msg("TICK: %d\n", i++);
+		taskYIELD();
+		//vTaskDelay(1000);
 	}
 }
 
