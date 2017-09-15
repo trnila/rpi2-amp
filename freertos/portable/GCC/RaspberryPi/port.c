@@ -167,8 +167,8 @@ void vPortEndScheduler( void )
  */
 void vTickISR (unsigned int nIRQ, void *pParam)
 {
-	log_msg("in tick\n");
 	xTaskIncrementTick();
+	log_msg("in tick\n");
 
 	#if configUSE_PREEMPTION == 1
 	vTaskSwitchContext();
@@ -182,50 +182,24 @@ void vTickISR (unsigned int nIRQ, void *pParam)
  */
 static void prvSetupTimerInterrupt( void )
 {
-TRACE;
+	TRACE;
+	portDISABLE_INTERRUPTS();
 
-asm(
-	// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
-	"ldr r1,=1 // enable timer (ENABLE)"
-	"mcr p15, 0, r1, c14, c2, 1 // store value"
+	asm(
+		// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
+		"ldr r1,=1\n" // enable timer (ENABLE)"
+		"mcr p15, 0, r1, c14, c2, 1\n" // store value"
 
-	// (CNTP_CVAL, PL1 Physical Timer CompareValue register)
-	// holds compare value of timer
-	"ldr r1,=100 // least-significant"
-	"ldr r2,=0 // most-significant"
-	"MCRR p15, 2, r1, r2, c14"
-);
+		// (CNTP_CVAL, PL1 Physical Timer CompareValue register)
+		// holds compare value of timer
+//		"ldr r1,=100\n" // least-significant"
+//		"ldr r2,=0\n" // most-significant"
+//		"MCRR p15, 2, r1, r2, c14\n"
+	);
+			asm("ldr r1, =80000000");
+			asm("MCR p15, 0, r1, c14, c2, 0");
 
-TRACE;
-	return;
-	unsigned long ulCompareMatch;
-	
-
-	/* Calculate the match value required for our wanted tick rate. */
-	ulCompareMatch = 1000000 / configTICK_RATE_HZ;
-
-	/* Protect against divide by zero.  Using an if() statement still results
-	in a warning - hence the #if. */
-	#if portPRESCALE_VALUE != 0
-	{
-		ulCompareMatch /= ( portPRESCALE_VALUE + 1 );
-	}
-	#endif
-
-	irqBlock();
-
-	pRegs->CTL = 0x003E0000;
-	pRegs->LOD = 1000 - 1;
-	pRegs->RLD = 1000 - 1;
-	pRegs->DIV = portTIMER_PRESCALE;
-	pRegs->CLI = 0;
-	pRegs->CTL = 0x003E00A2;
-
-	irqRegister(64, vTickISR, NULL);
-
-	irqEnable(64);
-
-	irqUnblock();
+	TRACE;
 }
 /*-----------------------------------------------------------*/
 

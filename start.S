@@ -32,8 +32,8 @@ _start:
 	prefetch_handler:   .word handle_pref
 	data_handler:       .word handle_data
 	unused_handler:     .word handle_unu
-	irq_handler:        .word irq
-	fiq_handler:        .word irq
+	irq_handler:        .word c_irq_handler
+	fiq_handler:        .word fail
 
 reset:
 	log '0'
@@ -71,7 +71,7 @@ msr spsr_cxsf, r0
 	msr		cpsr_c, r2
 	ldr     sp, =(760 * 1024 * 1024)
 
-	mov 	r2, # SVC_mode
+	mov 	r2, # No_Int | SVC_mode
 	msr		cpsr_c, r2
 	ldr     sp, =(780 * 1024 * 1024)
 
@@ -110,14 +110,6 @@ msr spsr_cxsf, r0
 		log 'A'
 		b loop
 
-irq:
-	push	{r0, r1, r2, lr}
-
-//	bl c_irq_handler
-
-	pop		{r0, r1, r2, lr}
-	subs	pc, lr, #4				@ return from exception
-
 .globl get_ctrl
 get_ctrl:
 	MRC p15, 0, r0, c14, c2, 1
@@ -144,10 +136,6 @@ hang:
 
 handle_und:
 	log 'a'
-	b hang
-
-handle_swi: 
-	log 'b'
 	b hang
 
 handle_pref:

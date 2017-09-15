@@ -83,42 +83,6 @@ extern "C" {
 	); \
 }
 
-#define test_ \
-	/* Push R0 as we are going to use the register. */						\
-	__asm volatile (														\
-	"STMDB	SP!, {R0}												\n\t"	\
-																			\
-	/* Set R0 to point to the task stack pointer. */						\
-	"STMDB	SP,{SP}^	\n\t"	/* ^ means get the user mode SP value. */	\
-	/*"NOP															\n\t" */ \
-	"SUB	SP, SP, #4												\n\t"	\
-	"LDMIA	SP!,{R0}												\n\t"	\
-																			\
-	/* Push the return address onto the stack. */							\
-	"STMDB	R0!, {LR}												\n\t"	\
-																			\
-	/* Now we have saved LR we can use it instead of R0. */					\
-	"MOV	LR, R0													\n\t"	\
-																			\
-	/* Pop R0 so we can save it onto the system mode stack. */				\
-	"LDMIA	SP!, {R0}												\n\t"	\
-																			\
-	/* Push all the system mode registers onto the task stack. */			\
-	"STMDB	LR,{R0-LR}^												\n\t"	\
-	"NOP															\n\t"	\
-	"SUB	LR, LR, #60-4											\n\t"	\
-		\
-	"MRS	R0, SPSR												\n\t"	\
-		"STMDB	LR!, {R0}\n" \
-																			\
-	/* Store the new top of stack for the task. */							\
-	"LDR	R0, =pxCurrentTCB										\n\t"	\
-	"LDR	R0, [R0]												\n\t"	\
-	"STR	LR, [R0]												\n\t"	\
-	);																		\
-	( void ) ulCriticalNesting;												\
-	( void ) pxCurrentTCB;													\
-} 
 
 extern void vTaskSwitchContext( void );
 #define portYIELD_FROM_ISR()		vTaskSwitchContext()
@@ -128,29 +92,50 @@ extern void vTaskSwitchContext( void );
 
 /* Critical section management. */
 
-/*
- * The interrupt management utilities can only be called from ARM mode.	 When
- * THUMB_INTERWORK is defined the utilities are defined as functions in 
- * portISR.c to ensure a switch to ARM mode.  When THUMB_INTERWORK is not 
- * defined then the utilities are defined as macros here - as per other ports.
- */
+#define portCPU_IRQ_DISABLE()										\
+		__asm volatile ( "CPSID i" );									\
+	__asm volatile ( "DSB" );										\
+	__asm volatile ( "ISB" );
 
-#ifdef THUMB_INTERWORK
+#define portCPU_IRQ_ENABLE()										\
+		__asm volatile ( "CPSIE i" );									\
+	__asm volatile ( "DSB" );										\
+	__asm volatile ( "ISB" );
 
-	extern void vPortDisableInterruptsFromThumb( void ) __attribute__ ((naked));
-	extern void vPortEnableInterruptsFromThumb( void ) __attribute__ ((naked));
 
-	#define portDISABLE_INTERRUPTS()	vPortDisableInterruptsFromThumb()
-	#define portENABLE_INTERRUPTS()	vPortEnableInterruptsFromThumb()
-#error thumbmode
-	
-#else
 
-	#define portDISABLE_INTERRUPTS()														\
-			
-	#define portENABLE_INTERRUPTS()														\
+#define portDISABLE_INTERRUPTS()  \
+	portCPU_IRQ_DISABLE(); \
+	__asm volatile (  \
+		"STMDB	SP!, {R0}			\n\t"	/* Push R0.								*/ \
+		"MRS	R0, CPSR			\n\t"	/* Get CPSR.							*/ \
+		"ORR	R0, R0, #0xC0		\n\t"	/* Disable IRQ, FIQ.					*/ \
+		"MSR	CPSR, R0			\n\t"	/* Write back modified value.			*/ \
+		"LDMIA	SP!, {R0}\n" 				/* Pop R0.								*/ \
+		\
+		/* CNTPNS - enable interrupt for non-secure physical timer */ \
+		"ldr r1, =0x0\n" \
+		"movw r2, 0x004C\n" \
+		"movt r2, 0x4000\n" \
+		"str r1, [r2]\n" \
+	);
 
-#endif /* THUMB_INTERWORK */
+
+#define portENABLE_INTERRUPTS()  \
+	portCPU_IRQ_ENABLE(); \
+	__asm volatile (  \
+		"STMDB	SP!, {R0}			\n\t"	/* Push R0.								*/ \
+		"MRS	R0, CPSR			\n\t"	/* Get CPSR.							*/ \
+		"BIC	R0, R0, #0xC0		\n\t"	/* Disable IRQ, FIQ.					*/ \
+		"MSR	CPSR, R0			\n\t"	/* Write back modified value.			*/ \
+		"LDMIA	SP!, {R0}\n" 				/* Pop R0.								*/ \
+		\
+		/* CNTPNS - enable interrupt for non-secure physical timer */ \
+		"ldr r1, =0x02\n" \
+		"movw r2, 0x004C\n" \
+		"movt r2, 0x4000\n" \
+		"str r1, [r2]\n" \
+	);
 
 extern void vPortEnterCritical( void );
 extern void vPortExitCritical( void );

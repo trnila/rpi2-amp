@@ -17,8 +17,8 @@ void task1(void* param) {
 	int i = 0;
 	for(;;) {
 		log_msg("TICK[%d]: %d\n",  (int) param, i++);
-		taskYIELD();
-//		vTaskDelay(1000);
+//		taskYIELD();
+		vTaskDelay(5);
 	}
 }
 
@@ -26,8 +26,8 @@ void task2(void* param) {
 	int i = 0;
 	for(;;) {
 		log_msg("Different code[%d]: %d\n",  (int) param, i++);
-		taskYIELD();
-//		vTaskDelay(1000);
+//		taskYIELD();
+		vTaskDelay(5);
 	}
 }
 
