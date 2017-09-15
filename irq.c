@@ -8,8 +8,9 @@
 int get_ctrl();
 void c_irq_handler( void ) __attribute__((interrupt("IRQ"), naked));
 extern volatile int shouldSwitch;
-
 void vTickISR (unsigned int nIRQ, void *pParam);
+
+
 void c_irq_handler() {
 	asm(
 			"sub lr, lr, #4\n"
@@ -22,7 +23,6 @@ void c_irq_handler() {
 			"push {r0-r12, lr}\n"
 	);
 
-//	portSAVE_CONTEXT();
 	// increment number to we can see that irq handler has been triggered
 	REG(0x30000400)++;
 
@@ -34,12 +34,9 @@ void c_irq_handler() {
 	} else {
 		unsigned int val = get_ctrl();
 		if(!(val & (1 << 2))) {
-			REG(0x30000000) = 'x';
-			//not in interrupt?
+			panic("unknown interrupt val: %d\n", val);
 		} else {
-//			set_ctrl(val | (1 << 1));
 			// CNTP_TVAL, PL1 Physical TimerValue register,			
-		REG(0x30000440)++;
 			vTickISR(64, 0);
 			asm("ldr r1, =20000000");
 			asm("MCR p15, 0, r1, c14, c2, 0");
@@ -47,34 +44,34 @@ void c_irq_handler() {
 	}
 
 	if(shouldSwitch) {
-	asm(
-		"cpsid i\n"
-		"dsb\n"
-		"isb\n"
+		asm(
+			"cpsid i\n"
+			"dsb\n"
+			"isb\n"
 
-		"pop {r0-r12,lr}\n"
-		"cps #0x12\n"
-		"pop {lr}\n"
-		"msr spsr_cxsf, lr\n"
-		"pop {lr}\n"
-	);
+			"pop {r0-r12,lr}\n"
+			"cps #0x12\n"
+			"pop {lr}\n"
+			"msr spsr_cxsf, lr\n"
+			"pop {lr}\n"
+		);
 
 		portSAVE_CONTEXT();
 		vTaskSwitchContext();
 		portRESTORE_CONTEXT();
 
 	} else {
-	asm(
-		"cpsid i\n"
-		"dsb\n"
-		"isb\n"
+		asm(
+			"cpsid i\n"
+			"dsb\n"
+			"isb\n"
 
-		"pop {r0-r12,lr}\n"
-		"cps #0x12\n"
-		"pop {lr}\n"
-		"msr spsr_cxsf, lr\n"
-		"pop {lr}\n"
-		"movs pc, lr\n"
-	);
+			"pop {r0-r12,lr}\n"
+			"cps #0x12\n"
+			"pop {lr}\n"
+			"msr spsr_cxsf, lr\n"
+			"pop {lr}\n"
+			"movs pc, lr\n"
+		);
 	}
 }

@@ -1,22 +1,7 @@
 #ifndef PORTMACRO_H
 #define PORTMACRO_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	typedef uint32_t TickType_t;
-
-/*-----------------------------------------------------------
- * Port specific definitions.  
- *
- * The settings in this file configure FreeRTOS correctly for the
- * given hardware and compiler.
- *
- * These settings should not be altered.
- *-----------------------------------------------------------
- */
-
-/* Type definitions. */
+typedef uint32_t TickType_t;
 #define portCHAR			char
 #define portFLOAT			float
 #define portDOUBLE		double
@@ -32,23 +17,11 @@ extern "C" {
 	typedef unsigned portLONG portTickType;
 	#define portMAX_DELAY ( portTickType ) 0xffffffff
 #endif
-/*-----------------------------------------------------------*/	
 
-/* Architecture specifics. */
+// Architecture specifics
 #define portSTACK_GROWTH			( -1 )
 #define portBYTE_ALIGNMENT			8
 #define portNOP()						__asm volatile ( "NOP" );
-/*-----------------------------------------------------------*/	
-
-
-/* Scheduler utilities. */
-
-/*
- * portSAVE_CONTEXT, portRESTORE_CONTEXT, portENTER_SWITCHING_ISR
- * and portEXIT_SWITCHING_ISR can only be called from ARM mode, but
- * are included here for efficiency.  An attempt to call one from
- * THUMB mode code will result in a compile time error.
- */
 
 #define portRESTORE_CONTEXT()															\
 {																						\
@@ -64,14 +37,12 @@ extern "C" {
 		"RFEIA	sp!\n" \
 	); \ 
 }
-/*-----------------------------------------------------------*/
 
 #define portSAVE_CONTEXT()													\
 {																			\
 	extern volatile void * volatile pxCurrentTCB;							\
 	extern volatile unsigned portLONG ulCriticalNesting;					\
 /*	log_msg("savstoring: '%s' .addr: %x\n", ((char*)pxCurrentTCB) + 52,  pxCurrentTCB);*/ \
-																			\
 	__asm volatile( \
 		"srsdb sp!, 0x1f\n" /*store lr and spsr to stack in sys_mode (0x1ff) */\
 		"cps 0x1f\n" /* enter sys_mode */ \
@@ -87,22 +58,16 @@ extern "C" {
 extern void vTaskSwitchContext( void );
 #define portYIELD_FROM_ISR()		vTaskSwitchContext()
 #define portYIELD()					__asm volatile ( "SWI 0" )
-/*-----------------------------------------------------------*/
-
-
-/* Critical section management. */
 
 #define portCPU_IRQ_DISABLE()										\
-		__asm volatile ( "CPSID i" );									\
+	__asm volatile ( "CPSID i" );									\
 	__asm volatile ( "DSB" );										\
 	__asm volatile ( "ISB" );
 
 #define portCPU_IRQ_ENABLE()										\
-		__asm volatile ( "CPSIE i" );									\
+	__asm volatile ( "CPSIE i" );									\
 	__asm volatile ( "DSB" );										\
 	__asm volatile ( "ISB" );
-
-
 
 #define portDISABLE_INTERRUPTS()  \
 	portCPU_IRQ_DISABLE(); \
@@ -146,18 +111,13 @@ extern void vPortExitCritical( void );
 
 #define portENTER_CRITICAL()		vPortEnterCritical();
 #define portEXIT_CRITICAL()		vPortExitCritical();
-/*-----------------------------------------------------------*/
 
-/* Task function macros as described on the FreeRTOS.org WEB site. */
+// Task function macros as described on the FreeRTOS.org WEB site.
 #define portTASK_FUNCTION_PROTO( vFunction, pvParameters ) void vFunction( void *pvParameters )
 #define portTASK_FUNCTION( vFunction, pvParameters ) void vFunction( void *pvParameters )
 
 typedef portSTACK_TYPE StackType_t;
 typedef long BaseType_t;
 typedef unsigned long UBaseType_t;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* PORTMACRO_H */

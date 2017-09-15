@@ -82,6 +82,7 @@
  *----------------------------------------------------------*/
 
 #define configASSERT(x) if((x) == 0) log_msg("Assert " __FILE__ ":%d\n", __LINE__)
+#define panic(args...) log_msg(args); for(;;) {}
 
 #define configUSE_PREEMPTION		1
 #define configUSE_IDLE_HOOK			0
