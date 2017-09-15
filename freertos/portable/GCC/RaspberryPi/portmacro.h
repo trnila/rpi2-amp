@@ -114,10 +114,12 @@ extern void vTaskSwitchContext( void );
 		"LDMIA	SP!, {R0}\n" 				/* Pop R0.								*/ \
 		\
 		/* CNTPNS - enable interrupt for non-secure physical timer */ \
+		"push {r1,r2}\n" \
 		"ldr r1, =0x0\n" \
 		"movw r2, 0x004C\n" \
 		"movt r2, 0x4000\n" \
 		"str r1, [r2]\n" \
+		"pop {r1,r2}\n" \
 	);
 
 
@@ -131,10 +133,12 @@ extern void vTaskSwitchContext( void );
 		"LDMIA	SP!, {R0}\n" 				/* Pop R0.								*/ \
 		\
 		/* CNTPNS - enable interrupt for non-secure physical timer */ \
+		"push {r1,r2}\n" \
 		"ldr r1, =0x02\n" \
 		"movw r2, 0x004C\n" \
 		"movt r2, 0x4000\n" \
 		"str r1, [r2]\n" \
+		"pop {r1,r2}\n" \
 	);
 
 extern void vPortEnterCritical( void );

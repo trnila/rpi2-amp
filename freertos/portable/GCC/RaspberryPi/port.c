@@ -160,16 +160,17 @@ void vPortEndScheduler( void )
  *
  *	See bt_interrupts.c in the RaspberryPi Drivers folder.
  */
+extern volatile int shouldSwitch = 0;
 void vTickISR (unsigned int nIRQ, void *pParam)
 {
-	xTaskIncrementTick();
-	log_msg("in tick\n");
+	shouldSwitch = xTaskIncrementTick();
+	log_msg("in tick %d %d\n", xTaskGetTickCount(), shouldSwitch);
 
 	#if configUSE_PREEMPTION == 1
-	vTaskSwitchContext();
+	if(shouldSwitch) {
+//		vTaskSwitchContext();
+	}
 	#endif
-
-//	pRegs->CLI = 0;			// Acknowledge the timer interrupt.
 }
 
 /*

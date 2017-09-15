@@ -15,19 +15,21 @@ volatile unsigned int veces;
 
 void task1(void* param) {
 	int i = 0;
+	log_msg("start %d\n", param);
 	for(;;) {
 		log_msg("TICK[%d]: %d\n",  (int) param, i++);
 //		taskYIELD();
-		vTaskDelay(5);
+		vTaskDelay((int) param);
 	}
 }
 
 void task2(void* param) {
 	int i = 0;
+	log_msg("start %d\n", param);
 	for(;;) {
 		log_msg("Different code[%d]: %d\n",  (int) param, i++);
 //		taskYIELD();
-		vTaskDelay(5);
+		vTaskDelay((int) param);
 	}
 }
 
@@ -46,9 +48,9 @@ void create_task(TaskFunction_t fn, const char* name, void* param) {
 void kernel_main() {
 	portDISABLE_INTERRUPTS();
 
-	create_task(task1, "TASK_1", 22);
-	create_task(task1, "TASK_2", 44);
-	create_task(task2, "TASK_3", 66);
+	create_task(task1, "TASK_1", 8);
+	create_task(task1, "TASK_2", 10);
+	create_task(task2, "TASK_3", 16);
 
 	vTaskStartScheduler();
 

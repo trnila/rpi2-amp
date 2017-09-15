@@ -7,6 +7,7 @@
 
 int get_ctrl();
 void c_irq_handler( void ) __attribute__((interrupt("IRQ"), naked));
+extern volatile int shouldSwitch;
 
 void vTickISR (unsigned int nIRQ, void *pParam);
 void c_irq_handler() {
@@ -45,6 +46,24 @@ void c_irq_handler() {
 		}
 	}
 
+	if(shouldSwitch) {
+	asm(
+		"cpsid i\n"
+		"dsb\n"
+		"isb\n"
+
+		"pop {r0-r12,lr}\n"
+		"cps #0x12\n"
+		"pop {lr}\n"
+		"msr spsr_cxsf, lr\n"
+		"pop {lr}\n"
+	);
+
+		portSAVE_CONTEXT();
+		vTaskSwitchContext();
+		portRESTORE_CONTEXT();
+
+	} else {
 	asm(
 		"cpsid i\n"
 		"dsb\n"
@@ -57,4 +76,5 @@ void c_irq_handler() {
 		"pop {lr}\n"
 		"movs pc, lr\n"
 	);
+	}
 }
