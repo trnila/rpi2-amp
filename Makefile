@@ -11,7 +11,8 @@ OBJECTS=start.o main.o log.o mini-printf.o irq.o \
 		freertos/portable/MemMang/heap_1.o
 
 
-CFLAGS=-I. -I./freertos/include/ -I./freertos/ -I./freertos/portable/GCC/RaspberryPi/ -march=armv7-a
+CFLAGS=-I. -I./freertos/include/ -I./freertos/ -I./freertos/portable/GCC/RaspberryPi/ -march=armv7-a \
+	   -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual
 
 all: app.img
 

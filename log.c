@@ -25,4 +25,6 @@ int log_msg(const char* msg, ...) {
 		r++;
 	} while(*r);
 	_log[pos] = 0;
+
+	return size;
 }

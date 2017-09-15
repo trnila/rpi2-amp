@@ -38,9 +38,9 @@ void create_task(TaskFunction_t fn, const char* name, void* param) {
 void kernel_main() {
 	portDISABLE_INTERRUPTS();
 
-	create_task(task1, "TASK_1", 8);
-	create_task(task1, "TASK_2", 10);
-	create_task(task2, "TASK_3", 16);
+	create_task(task1, "TASK_1", (void*) 8);
+	create_task(task1, "TASK_2", (void*) 10);
+	create_task(task2, "TASK_3", (void*) 16);
 
 	vTaskStartScheduler();
 

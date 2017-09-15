@@ -5,6 +5,8 @@
 #define portINITIAL_SPSR						( ( portSTACK_TYPE ) 0x1f ) /* System mode, ARM mode, interrupts enabled. */
 #define portNO_CRITICAL_SECTION_NESTING			( ( portSTACK_TYPE ) 0 )
 
+volatile int shouldSwitch = 0;
+
 static void prvSetupTimerInterrupt();
 extern void vPortISRStartFirstTask();
 
@@ -118,7 +120,6 @@ void vPortEndScheduler( void )
  *	This is the TICK interrupt service routine, note. no SAVE/RESTORE_CONTEXT here
  *	as thats done in the bottom-half of the ISR.
  */
-extern volatile int shouldSwitch = 0;
 void vTickISR (unsigned int nIRQ, void *pParam)
 {
 	shouldSwitch = xTaskIncrementTick();

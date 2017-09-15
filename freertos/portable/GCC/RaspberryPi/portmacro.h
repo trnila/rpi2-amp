@@ -25,9 +25,6 @@ typedef uint32_t TickType_t;
 
 #define portRESTORE_CONTEXT()															\
 {																						\
-	extern volatile void * volatile pxCurrentTCB;										\
-	extern volatile unsigned portLONG ulCriticalNesting;								\
-	/*log_msg("restoring: '%s' .addr: %x\n", ((char*)pxCurrentTCB) + 52,  pxCurrentTCB);*/ \
 	__asm volatile( \
 		"ldr r0, =pxCurrentTCB\n" \
 		"ldr r1, [r0]\n" \
@@ -35,14 +32,11 @@ typedef uint32_t TickType_t;
 		\
 		"pop {r0-r12, r14}\n" \
 		"RFEIA	sp!\n" \
-	); \ 
+	); \
 }
 
 #define portSAVE_CONTEXT()													\
 {																			\
-	extern volatile void * volatile pxCurrentTCB;							\
-	extern volatile unsigned portLONG ulCriticalNesting;					\
-/*	log_msg("savstoring: '%s' .addr: %x\n", ((char*)pxCurrentTCB) + 52,  pxCurrentTCB);*/ \
 	__asm volatile( \
 		"srsdb sp!, 0x1f\n" /*store lr and spsr to stack in sys_mode (0x1ff) */\
 		"cps 0x1f\n" /* enter sys_mode */ \

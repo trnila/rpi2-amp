@@ -2,6 +2,7 @@
 #include "FreeRTOSConfig.h"
 #include <stdint.h>
 #include "portmacro.h"
+#include "api.h"
 
 #define REG(addr) (*((int*) addr))
 

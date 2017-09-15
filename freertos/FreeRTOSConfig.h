@@ -67,6 +67,8 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
+#include "api.h"
+
 #define TRACE log_msg("AT %s %s:%d\n", __func__, __FILE__, __LINE__)
 
 /*-----------------------------------------------------------
