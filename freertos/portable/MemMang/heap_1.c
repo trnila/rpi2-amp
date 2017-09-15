@@ -102,8 +102,6 @@ static size_t xNextFreeByte = ( size_t ) 0;
 void *pvPortMalloc( size_t xWantedSize )
 {
 void *pvReturn = NULL; 
-log_msg("req %d\n", xWantedSize);
-log_msg("req %d\n", (int) xNextFreeByte);
 
 	/* Ensure that blocks are always aligned to the required number of bytes. */
 	#if portBYTE_ALIGNMENT != 1

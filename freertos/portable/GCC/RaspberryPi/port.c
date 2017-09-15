@@ -54,8 +54,6 @@ extern void vPortISRStartFirstTask( void );
 portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE pxCode, void *pvParameters )
 {
 portSTACK_TYPE *pxOriginalTOS;
-log_msg("code: %x\n", pxCode);
-log_msg("top of stack: %x\n", pxTopOfStack);
 
 	pxOriginalTOS = pxTopOfStack;
 
@@ -132,14 +130,12 @@ log_msg("top of stack: %x\n", pxTopOfStack);
 	tasks context. */
 //	*pxTopOfStack = portNO_CRITICAL_SECTION_NESTING;
 
-log_msg("end of stack: %x\n", pxTopOfStack);
 	return pxTopOfStack;
 }
 /*-----------------------------------------------------------*/
 
 portBASE_TYPE xPortStartScheduler( void )
 {
-	TRACE;
 	/* Start the timer that generates the tick ISR.  Interrupts are disabled
 	here already. */
 	prvSetupTimerInterrupt();
@@ -154,7 +150,6 @@ portBASE_TYPE xPortStartScheduler( void )
 
 void vPortEndScheduler( void )
 {
-	TRACE;
 	/* It is unlikely that the ARM port will require this function as there
 	is nothing to return to.  */
 }
@@ -182,7 +177,6 @@ void vTickISR (unsigned int nIRQ, void *pParam)
  */
 static void prvSetupTimerInterrupt( void )
 {
-	TRACE;
 	portDISABLE_INTERRUPTS();
 
 	asm(
@@ -199,7 +193,6 @@ static void prvSetupTimerInterrupt( void )
 			asm("ldr r1, =80000000");
 			asm("MCR p15, 0, r1, c14, c2, 0");
 
-	TRACE;
 }
 /*-----------------------------------------------------------*/
 

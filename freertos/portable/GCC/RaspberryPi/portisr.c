@@ -50,14 +50,12 @@ int g_bStarted = 0;
 void vPortISRStartFirstTask( void )
 {
 	g_bStarted++;
-TRACE;
 
 //	__asm volatile("mrs 	r0,cpsr");		// Read in the cpsr register.
 //	__asm volatile("bic		r0,r0,#0x80");	// Clear bit 8, (0x80) -- Causes IRQs to be enabled
 //	__asm volatile("msr		cpsr_c, r0");	// Write it back to the CPSR register
 //	__asm volatile("swi		0");			// Force a task switch with SWI!
 //	__asm volatile("nop");
-TRACE;
 
 	portENABLE_INTERRUPTS();
 
