@@ -1,5 +1,7 @@
 .section ".text.startup"
 .global _start
+.global restoreContext
+.global fail
 
 .equ	USR_mode,	0x10
 .equ	FIQ_mode,	0x11
@@ -26,12 +28,12 @@ _start:
 	ldr pc,fiq_handler
 	reset_handler:      .word reset
 	undefined_handler:  .word handle_und
-	swi_handler:        .word handle_swi
+	swi_handler:        .word vPortYieldProcessor
 	prefetch_handler:   .word handle_pref
 	data_handler:       .word handle_data
 	unused_handler:     .word handle_unu
-	irq_handler:        .word irq
-	fiq_handler:        .word irq
+	irq_handler:        .word c_irq_handler
+	fiq_handler:        .word fail
 
 reset:
 	log '0'
@@ -63,11 +65,16 @@ msr spsr_cxsf, r0
 	// set stack
 	mov 	r2, # No_Int | IRQ_mode
 	msr		cpsr_c, r2
-	ldr     sp, =(790 * 1024 * 1024)		//SP to 0x3000000
+	ldr     sp, =(790 * 1024 * 1024)
 
 	mov 	r2, # SYS_mode
 	msr		cpsr_c, r2
-	ldr     sp, =(768 * 1024 * 1024)		//SP to 0x3000000
+	ldr     sp, =(760 * 1024 * 1024)
+
+	mov 	r2, # No_Int | SVC_mode
+	msr		cpsr_c, r2
+	ldr     sp, =(780 * 1024 * 1024)
+
 	log '3'
 
 	// enable all mailboxes
@@ -76,24 +83,24 @@ msr spsr_cxsf, r0
 	str r1, [r2]
 
 	// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
-	ldr r1,=1 // enable timer (ENABLE)
-	mcr p15, 0, r1, c14, c2, 1 // store value
+//	ldr r1,=1 // enable timer (ENABLE)
+//	mcr p15, 0, r1, c14, c2, 1 // store value
 
 	// (CNTP_CVAL, PL1 Physical Timer CompareValue register)
 	// holds compare value of timer
-	ldr r1,=100 // least-significant
-	ldr r2,=0 // most-significant
-	MCRR p15, 2, r1, r2, c14
+//	ldr r1,=100 // least-significant
+//	ldr r2,=0 // most-significant
+//	MCRR p15, 2, r1, r2, c14
 
 	// CNTPNS - enable interrupt for non-secure physical timer
-	ldr r1, =0x02
-	ldr r2, =0x4000004C
-	str r1, [r2]
+//	ldr r1, =0x02
+//	ldr r2, =0x4000004C
+//	str r1, [r2]
 
 	// enable interrupts
-	mrs     r0, cpsr
-	bic     r0, r0, #0x80
-	msr     cpsr_c, r0
+//	mrs     r0, cpsr
+//	bic     r0, r0, #0x80
+//	msr     cpsr_c, r0
 	log '7'
 
 	bl       kernel_main
@@ -102,14 +109,6 @@ msr spsr_cxsf, r0
 	loop:
 		log 'A'
 		b loop
-
-irq:
-	push	{r0, r1, r2, lr}
-
-	bl c_irq_handler
-
-	pop		{r0, r1, r2, lr}
-	subs	pc, lr, #4				@ return from exception
 
 .globl get_ctrl
 get_ctrl:
@@ -139,10 +138,6 @@ handle_und:
 	log 'a'
 	b hang
 
-handle_swi:
-	log 'b'
-	b hang
-
 handle_pref:
 	log 'c'
 	b hang
@@ -154,3 +149,8 @@ handle_data:
 handle_unu:
 	log 'e'
 	b hang
+
+fail:
+	log '9'
+	b fail
+

@@ -7,7 +7,7 @@ char _log[LOG_SIZE];
 int pos = 0;
 
 int log_msg(const char* msg, ...) {
-	char line[64];
+	char line[128];
 
 	va_list list;
 	va_start(list, msg);
@@ -18,7 +18,13 @@ int log_msg(const char* msg, ...) {
 	char *r = line;
 	do {
 		_log[pos] = *r;
-		pos = (pos + 1) % LOG_SIZE;
+		pos++;
+		if(pos >= LOG_SIZE) {
+			pos = 0;
+		}
 		r++;
 	} while(*r);
+	_log[pos] = 0;
+
+	return size;
 }
