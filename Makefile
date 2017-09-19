@@ -6,8 +6,6 @@ OBJECTS=start.o main.o log.o mini-printf.o irq.o \
 		freertos/timers.o \
 		freertos/portable/GCC/RaspberryPi/port.o \
 		freertos/portable/GCC/RaspberryPi/portisr.o \
-		drivers/gpio.o \
-		drivers/irq.o \
 		freertos/portable/MemMang/heap_1.o
 
 
