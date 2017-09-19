@@ -78,9 +78,9 @@ msr spsr_cxsf, r0
 	log '3'
 
 	// enable all mailboxes
-//	ldr r1,=(15)
-//	ldr r2,=0x4000005C
-//	str r1, [r2]
+	ldr r1,=(15)
+	ldr r2,=0x4000005C
+	str r1, [r2]
 
 	// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
 //	ldr r1,=1 // enable timer (ENABLE)

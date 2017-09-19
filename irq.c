@@ -32,6 +32,7 @@ void c_irq_handler() {
 		REG(CORE3_MBOX3_RDCLR) = 0xffffffff;
 		REG(0x30000440)++;
 		REG(0x400000A8) = 42;
+		log_msg("mailbox received\n");
 	} else {
 		unsigned int val = get_ctrl();
 		if(!(val & (1 << 2))) {
