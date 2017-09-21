@@ -12,7 +12,12 @@ void vPortISRStartFirstTask( void );
 
 void vPortISRStartFirstTask( void )
 {
-	portENABLE_INTERRUPTS();
+	asm(
+		"ldr r1, =0x02\n"
+		"ldr r2, =0x4000004C\n"
+		"str r1, [r2]\n"
+	);
+//	portENABLE_INTERRUPTS();
 	portRESTORE_CONTEXT();
 	panic("unreachable code\n");
 }
@@ -44,7 +49,8 @@ in a variable, which is then saved as part of the stack context. */
 void vPortEnterCritical( void )
 {
 	// TODO: not implemented yet
-//	portDISABLE_INTERRUPTS();
+	portDISABLE_INTERRUPTS();
+//	log_msg("enter %d\n", ulCriticalNesting);
 	/* Now interrupts are disabled ulCriticalNesting can be accessed 
 	directly.  Increment ulCriticalNesting to keep a count of how many times
 	portENTER_CRITICAL() has been called. */
@@ -53,6 +59,7 @@ void vPortEnterCritical( void )
 
 void vPortExitCritical( void )
 {
+//	log_msg("exit %d\n", ulCriticalNesting - 1);
 	if( ulCriticalNesting > portNO_CRITICAL_NESTING )
 	{
 		// Decrement the nesting count as we are leaving a critical section.

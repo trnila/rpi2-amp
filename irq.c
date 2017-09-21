@@ -13,14 +13,14 @@ void vTickISR (unsigned int nIRQ, void *pParam);
 
 
 void c_irq_handler() {
-	asm(
+	asm volatile(
 			"sub lr, lr, #4\n"
 
 			"push {lr}\n"
 			"mrs lr, SPSR\n"
 			"push {lr}\n"
 
-			"cps #0x13\n"
+			"cps #0x1f\n"
 			"push {r0-r12, lr}\n"
 	);
 
@@ -39,18 +39,14 @@ void c_irq_handler() {
 			panic("unknown interrupt val: %d\n", val);
 		} else {
 			// CNTP_TVAL, PL1 Physical TimerValue register,			
-			vTickISR(64, 0);
-			asm("ldr r1, =20000000");
+			asm("ldr r1, =200000");
 			asm("MCR p15, 0, r1, c14, c2, 0");
+			vTickISR(64, 0);
 		}
 	}
 
 	if(shouldSwitch) {
 		asm(
-			"cpsid i\n"
-			"dsb\n"
-			"isb\n"
-
 			"pop {r0-r12,lr}\n"
 			"cps #0x12\n"
 			"pop {lr}\n"
@@ -64,10 +60,6 @@ void c_irq_handler() {
 
 	} else {
 		asm(
-			"cpsid i\n"
-			"dsb\n"
-			"isb\n"
-
 			"pop {r0-r12,lr}\n"
 			"cps #0x12\n"
 			"pop {lr}\n"

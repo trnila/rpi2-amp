@@ -67,7 +67,7 @@ msr spsr_cxsf, r0
 	msr		cpsr_c, r2
 	ldr     sp, =(790 * 1024 * 1024)
 
-	mov 	r2, # SYS_mode
+	mov 	r2, # No_Int | SYS_mode
 	msr		cpsr_c, r2
 	ldr     sp, =(760 * 1024 * 1024)
 

@@ -90,6 +90,9 @@ portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE
 
 	// When the task starts it will expect to find the function parameter in R0
 	*pxTopOfStack = ( portSTACK_TYPE ) pvParameters;
+	pxTopOfStack--;	
+	
+	*pxTopOfStack = 0; //portNO_CRITICAL_NESTING;
 
 	return pxTopOfStack;
 }
@@ -137,7 +140,6 @@ void vTickISR (unsigned int nIRQ, void *pParam)
  */
 static void prvSetupTimerInterrupt( void )
 {
-	portDISABLE_INTERRUPTS();
 
 	asm(
 		// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
