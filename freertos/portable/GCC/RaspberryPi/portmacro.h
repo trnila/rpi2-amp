@@ -1,7 +1,9 @@
 #ifndef PORTMACRO_H
 #define PORTMACRO_H
+#include <stdint.h>
 
 typedef uint32_t TickType_t;
+typedef uint32_t uword;
 #define portCHAR			char
 #define portFLOAT			float
 #define portDOUBLE		double

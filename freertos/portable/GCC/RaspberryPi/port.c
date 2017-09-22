@@ -126,7 +126,7 @@ void vPortEndScheduler( void )
 void vTickISR (unsigned int nIRQ, void *pParam)
 {
 	shouldSwitch = xTaskIncrementTick();
-	log_msg("in tick %d %d\n", xTaskGetTickCount(), shouldSwitch);
+//	log_msg("in tick %d %d\n", xTaskGetTickCount(), shouldSwitch);
 
 	#if configUSE_PREEMPTION == 1
 	if(shouldSwitch) {
