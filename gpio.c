@@ -35,7 +35,9 @@ void pinMode(int pin, int fn) {
 	const int fnWidth = 0x7; // function can take up to 3bits
 
 	int offset = pin / perReg;
-	io->GPFSEL[offset] |= (fn & fnWidth) << (3 * (pin - offset * perReg));
+	int pos = (3 * (pin - offset * perReg));
+	io->GPFSEL[offset] &= ~(fnWidth << pos);
+	io->GPFSEL[offset] |= (fn & fnWidth) << pos;
 }
 
 void digitalWrite(int pin, int val) {
