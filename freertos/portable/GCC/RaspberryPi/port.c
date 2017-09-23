@@ -10,11 +10,16 @@ volatile int shouldSwitch = 0;
 static void prvSetupTimerInterrupt();
 extern void vPortISRStartFirstTask();
 
-/* 
- * Initialise the stack of a task to look exactly as if a call to 
+void taskReturned() {
+	portDISABLE_INTERRUPTS();
+	panic("panic: task returned from main function\n");
+}
+
+/*
+ * Initialise the stack of a task to look exactly as if a call to
  * portSAVE_CONTEXT had been called.
  *
- * See header file for description. 
+ * See header file for description.
  */
 portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE pxCode, void *pvParameters )
 {
@@ -33,65 +38,64 @@ portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE
 	pxTopOfStack--;
 
 	// R14 - LR
-	// TODO: add own function that will catch ended tasks
-	*pxTopOfStack = ( portSTACK_TYPE ) 0xaaaaaaaa;
+	*pxTopOfStack = ( portSTACK_TYPE ) taskReturned;
 	pxTopOfStack--;
 
 	// R13 - SP
-	// not on stack, value is stored in pxCurrentTCB 
+	// not on stack, value is stored in pxCurrentTCB
 
 	// R12
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x12121212;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R11
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x11111111;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R10
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x10101010;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R9
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x09090909;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R8
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x08080808;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R7
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x07070707;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R6
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x06060606;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R5
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x05050505;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R4
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x04040404;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R3
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x03030303;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R2
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x02020202;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// R1
 	*pxTopOfStack = ( portSTACK_TYPE ) 0x01010101;
-	pxTopOfStack--;	
+	pxTopOfStack--;
 
 	// When the task starts it will expect to find the function parameter in R0
 	*pxTopOfStack = ( portSTACK_TYPE ) pvParameters;
-	pxTopOfStack--;	
-	
+	pxTopOfStack--;
+
 	*pxTopOfStack = 0; //portNO_CRITICAL_NESTING;
 
 	return pxTopOfStack;
