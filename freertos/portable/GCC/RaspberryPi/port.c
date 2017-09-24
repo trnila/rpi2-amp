@@ -1,6 +1,5 @@
 #include "FreeRTOS.h"
 #include "task.h"
-#include <drivers/irq.h>
 
 #define portINITIAL_SPSR						( ( portSTACK_TYPE ) 0x1f ) /* System mode, ARM mode, interrupts enabled. */
 #define portNO_CRITICAL_SECTION_NESTING			( ( portSTACK_TYPE ) 0 )
