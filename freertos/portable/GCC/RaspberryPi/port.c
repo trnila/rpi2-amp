@@ -124,22 +124,6 @@ void vPortEndScheduler( void )
 }
 
 /*
- *	This is the TICK interrupt service routine, note. no SAVE/RESTORE_CONTEXT here
- *	as thats done in the bottom-half of the ISR.
- */
-void vTickISR (unsigned int nIRQ, void *pParam)
-{
-	shouldSwitch = xTaskIncrementTick();
-//	log_msg("in tick %d %d\n", xTaskGetTickCount(), shouldSwitch);
-
-	#if configUSE_PREEMPTION == 1
-	if(shouldSwitch) {
-//		vTaskSwitchContext();
-	}
-	#endif
-}
-
-/*
  * Setup the timer 0 to generate the tick interrupts at the required frequency.
  */
 static void prvSetupTimerInterrupt( void )
