@@ -2,7 +2,6 @@
 #include <task.h>
 
 #include "api.h"
-#include "io.h"
 
 void task1(void* param) {
 	int i = 0;
