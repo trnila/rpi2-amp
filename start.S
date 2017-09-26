@@ -36,33 +36,27 @@ _start:
 	fiq_handler:        .word fail
 
 reset:
-	log '0'
+	// arm is currently in HYP mode due to raspi firmware
 
-mrs r0, cpsr
-eor r0, r0, #0x1a
-tst r0, #0x1f
-bic r0, r0, #0x1f
-orr r0, r0, #0xd3
-bne 1f
-orr r0, r0, #0x100
-adr lr, 2f
-msr spsr_cxsf, r0
-.word 0xe12ef30e /* msr elr_hyp, lr */
-.word 0xe160006e /* eret */
-1:	msr cpsr_c, r0
-2:	nop
+	// set saved processor mode to SVC
+	mov r2, # No_Int | SVC_mode
+	msr spsr_c, r2
+
+	// leave HYP mode to saved mode
+	adr lr, 2f
+	.word 0xe12ef30e /* msr elr_hyp, lr */
+	.word 0xe160006e /* eret */
+	2:	nop
 
 
-	log '1'
-
-	// relocate vector table
+	// set address of our vector table
+	// B4.1.156 VBAR, Vector Base Address Register, Security Extensions in arm_architecture_reference_manual.pdf
 	ldr r0, =_start
-	mcr p15, 0, r0, c12, c0, 0
-	mrc p15, 0, r0, c1, c0, 0
-	bic r0, #(1<<13)
-	mcr p15, 0, r0, c1, c0, 0
-	
-	// set stack
+	mcr p15, 0, r0, c12, c0, 0 // write r0 to VBAR
+
+
+	// set stacks for each mode we will use
+	// TODO: how to specify address of these stacks?
 	mov 	r2, # No_Int | IRQ_mode
 	msr		cpsr_c, r2
 	ldr     sp, =(790 * 1024 * 1024)
@@ -75,39 +69,11 @@ msr spsr_cxsf, r0
 	msr		cpsr_c, r2
 	ldr     sp, =(780 * 1024 * 1024)
 
-	log '3'
-
-	// enable all mailboxes
-	ldr r1,=(15)
-	ldr r2,=0x4000005C
-	str r1, [r2]
-
-	// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
-//	ldr r1,=1 // enable timer (ENABLE)
-//	mcr p15, 0, r1, c14, c2, 1 // store value
-
-	// (CNTP_CVAL, PL1 Physical Timer CompareValue register)
-	// holds compare value of timer
-//	ldr r1,=100 // least-significant
-//	ldr r2,=0 // most-significant
-//	MCRR p15, 2, r1, r2, c14
-
-	// CNTPNS - enable interrupt for non-secure physical timer
-//	ldr r1, =0x02
-//	ldr r2, =0x4000004C
-//	str r1, [r2]
-
-	// enable interrupts
-//	mrs     r0, cpsr
-//	bic     r0, r0, #0x80
-//	msr     cpsr_c, r0
-	log '7'
 
 	bl       kernel_main
 
 	// program shall not get here, if so, loop forever
 	loop:
-		log 'A'
 		b loop
 
 .globl get_ctrl
@@ -129,7 +95,6 @@ PUT32:
 GET32:
 	ldr r0,[r0]
 	bx lr
-
 
 hang:
 	b hang
