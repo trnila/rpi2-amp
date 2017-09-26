@@ -1,5 +1,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
+#include "timer.h"
 
 #define portINITIAL_SPSR						( ( portSTACK_TYPE ) 0x1f ) /* System mode, ARM mode, interrupts enabled. */
 #define portNO_CRITICAL_SECTION_NESTING			( ( portSTACK_TYPE ) 0 )
@@ -143,19 +144,7 @@ void vTickISR (unsigned int nIRQ, void *pParam)
  */
 static void prvSetupTimerInterrupt( void )
 {
-
-	asm(
-		// enable physical timer (CNTP_CTL, PL1 Physical Timer Control register)
-		"ldr r1,=1\n" // enable timer (ENABLE)"
-		"mcr p15, 0, r1, c14, c2, 1\n" // store value"
-
-		// (CNTP_CVAL, PL1 Physical Timer CompareValue register)
-		// holds compare value of timer
-//		"ldr r1,=100\n" // least-significant"
-//		"ldr r2,=0\n" // most-significant"
-//		"MCRR p15, 2, r1, r2, c14\n"
-	);
-	asm("ldr r1, =80000000");
-	asm("MCR p15, 0, r1, c14, c2, 0");
+	setTimerCtl(getTimerCtl() | TIMER_ENABLE);
+	setTimerVal(80000000);
 }
 

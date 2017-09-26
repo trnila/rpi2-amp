@@ -76,26 +76,6 @@ reset:
 	loop:
 		b loop
 
-.globl get_ctrl
-get_ctrl:
-	MRC p15, 0, r0, c14, c2, 1
-	bx lr
-
-.globl set_ctrl
-set_ctrl:
-	MCR p15, 0, r0, c14, c2, 1
-	bx lr
-
-.globl PUT32
-PUT32:
-	str r1,[r0]
-	bx lr
-
-.globl GET32
-GET32:
-	ldr r0,[r0]
-	bx lr
-
 hang:
 	b hang
 

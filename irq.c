@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "portmacro.h"
 #include "api.h"
+#include "timer.h"
 
 #define REG(addr) (*((int*) addr))
 
@@ -34,14 +35,12 @@ void c_irq_handler() {
 		REG(0x400000A8) = 42;
 		log_msg("mailbox received\n");
 	} else {
-		unsigned int val = get_ctrl();
-		if(!(val & (1 << 2))) {
-			panic("unknown interrupt val: %d\n", val);
-		} else {
-			// CNTP_TVAL, PL1 Physical TimerValue register,			
-			asm("ldr r1, =200000");
-			asm("MCR p15, 0, r1, c14, c2, 0");
+		uint32_t val = getTimerCtl();
+		if(val & TIMER_ISTATUS) {
+			setTimerVal(200000);
 			vTickISR(64, 0);
+		} else {
+			panic("unknown interrupt val: %d\n", val);
 		}
 	}
 

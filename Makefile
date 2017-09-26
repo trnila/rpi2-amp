@@ -4,6 +4,7 @@ OBJECTS=start.o \
 		mini-printf.o \
 		irq.o \
 		gpio.o \
+		timer.o \
 		runtime.o \
 		freertos/croutine.o \
 		freertos/event_groups.o \
