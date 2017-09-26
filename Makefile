@@ -5,6 +5,7 @@ OBJECTS=start.o \
 		irq.o \
 		gpio.o \
 		timer.o \
+		uart.o \
 		runtime.o \
 		freertos/croutine.o \
 		freertos/event_groups.o \

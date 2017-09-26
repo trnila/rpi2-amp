@@ -4,8 +4,7 @@
 #include "portmacro.h"
 #include "api.h"
 #include "timer.h"
-
-#define REG(addr) (*((int*) addr))
+#include "uart.h"
 
 void c_irq_handler( void ) __attribute__((interrupt("IRQ"), naked));
 
@@ -29,6 +28,16 @@ void c_irq_handler() {
 
 	{
 		int shouldSwitch = 0;
+
+		// handle uart irqs
+		for(;;) {
+			unsigned int s = GET32(AUX_MU_IIR_REG);
+			if((s & 6) == 4) {
+				irq_uart_received();
+			} else {
+				break;
+			}
+		}
 
 		int source = REG(CORE3_IRQ_SOURCE);
 		if(source & INT_SRC_MBOX3) {
