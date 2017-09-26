@@ -7,9 +7,7 @@
 
 #define REG(addr) (*((int*) addr))
 
-int get_ctrl();
 void c_irq_handler( void ) __attribute__((interrupt("IRQ"), naked));
-void vTickISR (unsigned int nIRQ, void *pParam);
 
 
 void c_irq_handler() {
