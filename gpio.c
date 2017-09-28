@@ -1,4 +1,6 @@
 #include "portmacro.h"
+#include "irq_bcm.h"
+#include "api.h"
 
 typedef struct {
 	uword GPFSEL[6];
@@ -65,4 +67,15 @@ void digitalWrite(int pin, int val) {
 int digitalRead(int pin) {
 	int offset = pin / 32;
 	return (io->GPLEV[offset] & (1 << pin)) > 0;
+}
+
+void attachInterrupt(int pin, void (*fn)(void), int mode) {
+	// high enable
+	io->GPHEN[0] |= 0xFF;
+
+irqEnable(49);
+irqEnable(50);
+	irqEnable(51);
+	irqEnable(52);
+
 }

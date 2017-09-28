@@ -1,3 +1,5 @@
+#define BIT(n) (1 << n)
+
 #include "gpio.h"
 
 #define REG(addr) (*((int*) addr))

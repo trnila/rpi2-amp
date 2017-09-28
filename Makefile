@@ -7,6 +7,7 @@ OBJECTS=start.o \
 		timer.o \
 		uart.o \
 		runtime.o \
+		irq_bcm.o \
 		freertos/croutine.o \
 		freertos/queue.o \
 		freertos/event_groups.o \

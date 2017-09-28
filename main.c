@@ -74,12 +74,29 @@ void create_task(TaskFunction_t fn, const char* name, void* param) {
 	}
 }
 
+void test() {
+	log_msg("Hi\n");
+}
+
+void gpio_isr(void *param) {
+	int pin = 20;
+	pinMode(20, INPUT);
+
+	attachInterrupt(pin, test, 0);
+
+	int i = 0;
+	for(;;) {
+		log_msg("%d\n", i++);
+		vTaskDelay(100);
+	}
+}
+
 void kernel_main() {
 	portDISABLE_INTERRUPTS();
 
-//	create_task(task1, "TASK_1", (void*) 8);
-	//create_task(task1, "TASK_2", (void*) 10);
-	//create_task(task2, "TASK_3", (void*) 16);
+	/*create_task(task1, "TASK_1", (void*) 8);
+	create_task(task1, "TASK_2", (void*) 10);
+	create_task(task2, "TASK_3", (void*) 16);
 
 	TaskLedConfig ledConf[] = {
 		{
@@ -95,9 +112,13 @@ void kernel_main() {
 			.initialDelay = 0,
 		}
 	};
-	//create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[0]);
-	//create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[1]);
-	create_task(serial, "SERIAL", 0);
+	create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[0]);
+	create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[1]);*/
+
+    create_task(serial, "SERIAL", 0);
+
+	create_task(gpio_isr, "TASK", NULL);
+
 
 	vTaskStartScheduler();
 

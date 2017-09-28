@@ -1,4 +1,4 @@
-#define BIT(n) (1 << n)
+#include "api.h"
 
 #define TIMER_ISTATUS BIT(2) // if timer is asserted, ie: reached value
 #define TIMER_IMASK BIT(1)
