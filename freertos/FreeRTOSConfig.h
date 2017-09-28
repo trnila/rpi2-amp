@@ -68,6 +68,8 @@
 #define FREERTOS_CONFIG_H
 
 #include "api.h"
+#define portTICK_PERIOD_MS 1
+
 
 #define TRACE log_msg("AT %s %s:%d\n", __func__, __FILE__, __LINE__)
 
@@ -101,6 +103,8 @@
 #define configUSE_APPLICATION_TASK_TAG	1
 #define configUSE_MALLOC_FAILED_HOOK 1
 
+#define configUSE_COUNTING_SEMAPHORES 1
+
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 		0
 #define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
@@ -129,7 +133,6 @@ priority values, 0 to 15.  This must correspond to the
 configKERNEL_INTERRUPT_PRIORITY setting.  Here 15 corresponds to the lowest
 NVIC value of 255. */
 #define configLIBRARY_KERNEL_INTERRUPT_PRIORITY	15
-
 
 #endif /* FREERTOS_CONFIG_H */
 

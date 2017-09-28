@@ -88,4 +88,6 @@ typedef portSTACK_TYPE StackType_t;
 typedef long BaseType_t;
 typedef unsigned long UBaseType_t;
 
+#define portEND_SWITCHING_ISR(x) portYIELD_FROM_ISR()
+
 #endif /* PORTMACRO_H */

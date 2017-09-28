@@ -7,17 +7,25 @@ OBJECTS=start.o \
 		timer.o \
 		runtime.o \
 		freertos/croutine.o \
+		freertos/queue.o \
 		freertos/event_groups.o \
 		freertos/list.o \
 		freertos/tasks.o \
 		freertos/timers.o \
 		freertos/portable/GCC/RaspberryPi/port.o \
 		freertos/portable/GCC/RaspberryPi/portisr.o \
-		freertos/portable/MemMang/heap_1.o
+		freertos/portable/MemMang/heap_1.o \
+		rpmsg-lite/lib/rpmsg_lite/rpmsg_lite.o \
+		rpmsg-lite/lib/rpmsg_lite/rpmsg_ns.o \
+		rpmsg-lite/lib/rpmsg_lite/rpmsg_queue.o \
+		rpmsg-lite/lib/virtio/virtqueue.o \
+		rpmsg-lite/lib/common/llist.o \
+		rpmsg-lite/lib/rpmsg_lite/porting/environment/rpmsg_env_freertos.o \
+		rpmsg_platform.o
 
 
 CFLAGS=-I. -I./freertos/include/ -I./freertos/ -I./freertos/portable/GCC/RaspberryPi/ -march=armv7-a \
-	   -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual
+		-I./rpmsg-lite/lib/include/
 
 all: app.img
 
