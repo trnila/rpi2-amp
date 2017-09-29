@@ -1,4 +1,5 @@
 // https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2836/QA7_rev3.4.pdf
+#pragma once
 
 // Timers interrupt control registers
 #define CORE0_TIMER_IRQCNTL 0x40000040
@@ -94,3 +95,29 @@
 #define CORE3_MBOX1_RDCLR 0x400000F4
 #define CORE3_MBOX2_RDCLR 0x400000F8
 #define CORE3_MBOX3_RDCLR 0x400000FC
+
+
+#define IOBASE 0x3f000000
+#define AUX_ENABLES     0x3f215004
+#define AUX_MU_IO_REG   0x3f215040
+#define AUX_MU_IER_REG  0x3f215044
+#define AUX_MU_IIR_REG  0x3f215048
+#define AUX_MU_LCR_REG  0x3f21504C
+#define AUX_MU_MCR_REG  0x3f215050
+#define AUX_MU_LSR_REG  0x3f215054
+#define AUX_MU_MSR_REG  0x3f215058
+#define AUX_MU_SCRATCH  0x3f21505C
+#define AUX_MU_CNTL_REG 0x3f215060
+#define AUX_MU_STAT_REG 0x3f215064
+#define AUX_MU_BAUD_REG 0x3f215068
+
+#define IRQ_BASIC IOBASE + 0x00B200
+#define IRQ_PEND1 IOBASE + 0x00B204
+#define IRQ_PEND2 IOBASE + 0x00B208
+#define IRQ_FIQ_CONTROL IOBASE + 0x00B210
+#define IRQ_ENABLE1 0x3f00B210
+#define IRQ_ENABLE2 IOBASE + 0x00B214
+#define IRQ_ENABLE_BASIC IOBASE + 0x00B218
+#define IRQ_DISABLE1 IOBASE + 0x00B21C
+#define IRQ_DISABLE2 IOBASE + 0x00B220
+#define IRQ_DISABLE_BASIC IOBASE + 0x00B224

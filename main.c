@@ -2,6 +2,21 @@
 #include <task.h>
 
 #include "api.h"
+#include "mini-printf.h"
+
+void serial(void *param) {
+	char buffer[32];
+
+    uart_init();
+
+    for(;;) {
+        int c = uart_read();
+
+        log_msg("recv: %c\n", c);
+		mini_snprintf(buffer, sizeof(buffer), "Received %c\r\n", c);
+        uart_print(buffer);
+    }
+}
 
 void task1(void* param) {
 	int i = 0;
@@ -62,9 +77,9 @@ void create_task(TaskFunction_t fn, const char* name, void* param) {
 void kernel_main() {
 	portDISABLE_INTERRUPTS();
 
-	create_task(task1, "TASK_1", (void*) 8);
-	create_task(task1, "TASK_2", (void*) 10);
-	create_task(task2, "TASK_3", (void*) 16);
+//	create_task(task1, "TASK_1", (void*) 8);
+	//create_task(task1, "TASK_2", (void*) 10);
+	//create_task(task2, "TASK_3", (void*) 16);
 
 	TaskLedConfig ledConf[] = {
 		{
@@ -80,8 +95,9 @@ void kernel_main() {
 			.initialDelay = 0,
 		}
 	};
-	create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[0]);
-	create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[1]);
+	//create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[0]);
+	//create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[1]);
+	create_task(serial, "SERIAL", 0);
 
 	vTaskStartScheduler();
 
