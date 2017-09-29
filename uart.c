@@ -1,5 +1,7 @@
 #include "api.h"
 #include "const.h"
+#include "FreeRTOS.h"
+#include "queue.h"
 
 #define WORD_8BIT 3
 #define WORD_7BIT 2
@@ -11,13 +13,20 @@
 #define CNTL_ENABLE_RX BIT(0)
 #define CNTL_ENABLE_TX BIT(1)
 
-
 #define BUFFER_SIZE 32
-char input[BUFFER_SIZE];
+
+
+QueueHandle_t rxQueue;
 
 void irq_uart_received() {
     int c = REG(AUX_MU_IO_REG);
-    log_msg("RECEIVED %c\n", c);
+    xQueueSendToBackFromISR(rxQueue, &c, NULL);
+}
+
+char uart_read() {
+    char val;
+    xQueueReceive(rxQueue, &val, portMAX_DELAY);
+    return val;
 }
 
 void uart_print(const char *str) {
@@ -51,4 +60,9 @@ void uart_init() {
 
     // enable bcm interrupt controller
  	REG(IRQ_ENABLE1) = 1 << 29;
+
+    rxQueue = xQueueCreate(BUFFER_SIZE, sizeof(char));
+    if(!rxQueue) {
+        panic("Could not create rx queue");
+    }
 }

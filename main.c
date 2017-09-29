@@ -9,15 +9,16 @@ void serial(void *param) {
 
     uart_init();
 
-	int i = 0;
     for(;;) {
-		mini_snprintf(buffer, sizeof(buffer), "Hello %d\r\n", i);
+        int c = uart_read();
+
+        log_msg("recv: %c\n", c);
+		mini_snprintf(buffer, sizeof(buffer), "Received %c\r\n", c);
         uart_print(buffer);
-		i++;
+
         vTaskDelay(70);
     }
 }
-
 
 void task1(void* param) {
 	int i = 0;

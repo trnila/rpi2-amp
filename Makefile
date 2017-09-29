@@ -8,6 +8,7 @@ OBJECTS=start.o \
 		uart.o \
 		runtime.o \
 		freertos/croutine.o \
+		freertos/queue.o \
 		freertos/event_groups.o \
 		freertos/list.o \
 		freertos/tasks.o \
