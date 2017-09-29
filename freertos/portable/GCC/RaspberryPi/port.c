@@ -128,7 +128,8 @@ void vPortEndScheduler( void )
  */
 static void prvSetupTimerInterrupt( void )
 {
-	setTimerCtl(getTimerCtl() | TIMER_ENABLE);
+	// XXX: when we just OR 0 bit, it wont work after hard reboot
+	setTimerCtl(TIMER_ENABLE);
 	setTimerVal(80000000);
 }
 

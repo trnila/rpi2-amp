@@ -5,10 +5,10 @@
 #define TIMER_ENABLE BIT(0)
 
 // CNTP_CTL
-inline uint32_t getTimerCtl();
+uint32_t getTimerCtl();
 
-inline void setTimerCtl(uint32_t val);
+void setTimerCtl(uint32_t val);
 
 // CNTP_TVAL, PL1 Physical TimerValue
 // downcounter
-inline void setTimerVal(uint32_t val);
+void setTimerVal(uint32_t val);
