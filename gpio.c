@@ -38,6 +38,18 @@ void pinMode(int pin, int fn) {
 	int pos = (3 * (pin - offset * perReg));
 	io->GPFSEL[offset] &= ~(fnWidth << pos);
 	io->GPFSEL[offset] |= (fn & fnWidth) << pos;
+
+
+	// set pull
+	int pull = (fn >> 3) & 0x2;
+	*io->GPPUD = pull;
+	for(int ra = 0; ra < 150; ra++) {} // wait 150 cycles
+	io->GPPUDCLK[offset] = 1 << (pin % 32);
+
+	// wait and stop marking pullup
+	for(int ra = 0; ra < 150; ra++) {} // wait 150 cycles
+	*io->GPPUD = 0;
+	*io->GPPUDCLK = 0;
 }
 
 void digitalWrite(int pin, int val) {
