@@ -18,9 +18,13 @@
 
 QueueHandle_t rxQueue;
 
-void irq_uart_received() {
+int irq_uart_received() {
+    int shouldSwitch = 0;
+
     int c = REG(AUX_MU_IO_REG);
-    xQueueSendToBackFromISR(rxQueue, &c, NULL);
+    xQueueSendToBackFromISR(rxQueue, &c, &shouldSwitch);
+
+    return shouldSwitch;
 }
 
 char uart_read() {

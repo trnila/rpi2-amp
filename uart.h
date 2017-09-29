@@ -5,4 +5,4 @@ void uart_print(const char *str);
 char uart_read();
 
 
-void irq_uart_received();
+int irq_uart_received();

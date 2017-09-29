@@ -33,7 +33,7 @@ void c_irq_handler() {
 		for(;;) {
 			unsigned int s = REG(AUX_MU_IIR_REG);
 			if((s & 6) == 4) {
-				irq_uart_received();
+				shouldSwitch |= irq_uart_received();
 			} else {
 				break;
 			}

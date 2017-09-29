@@ -15,8 +15,6 @@ void serial(void *param) {
         log_msg("recv: %c\n", c);
 		mini_snprintf(buffer, sizeof(buffer), "Received %c\r\n", c);
         uart_print(buffer);
-
-        vTaskDelay(70);
     }
 }
 
