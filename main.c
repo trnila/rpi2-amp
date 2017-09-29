@@ -2,8 +2,21 @@
 #include <task.h>
 
 #include "api.h"
+#include "mini-printf.h"
 
-void serial(void *param);
+void serial(void *param) {
+	char buffer[32];
+
+    uart_init();
+
+	int i = 0;
+    for(;;) {
+		mini_snprintf(buffer, sizeof(buffer), "Hello %d\r\n", i);
+        uart_print(buffer);
+		i++;
+        vTaskDelay(70);
+    }
+}
 
 
 void task1(void* param) {
@@ -65,7 +78,7 @@ void create_task(TaskFunction_t fn, const char* name, void* param) {
 void kernel_main() {
 	portDISABLE_INTERRUPTS();
 
-	//create_task(task1, "TASK_1", (void*) 8);
+//	create_task(task1, "TASK_1", (void*) 8);
 	//create_task(task1, "TASK_2", (void*) 10);
 	//create_task(task2, "TASK_3", (void*) 16);
 

@@ -1,7 +1,6 @@
 #include "gpio.h"
 
 #define REG(addr) (*((int*) addr))
-#define PUT32(a, b) REG(a) = b
-#define GET32(a) REG(a)
+#define BIT(n) (1 << n)
 
 int log_msg(const char* msg, ...);

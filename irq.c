@@ -31,7 +31,7 @@ void c_irq_handler() {
 
 		// handle uart irqs
 		for(;;) {
-			unsigned int s = GET32(AUX_MU_IIR_REG);
+			unsigned int s = REG(AUX_MU_IIR_REG);
 			if((s & 6) == 4) {
 				irq_uart_received();
 			} else {
