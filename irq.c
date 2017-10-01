@@ -54,6 +54,8 @@ void c_irq_handler() {
 			}
 		}
 
+		lo();
+
 		if(shouldSwitch) {
 			asm(
 				// recover registers

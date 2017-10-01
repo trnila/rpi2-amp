@@ -71,11 +71,21 @@ int digitalRead(int pin) {
 
 void attachInterrupt(int pin, void (*fn)(void), int mode) {
 	// high enable
-	io->GPHEN[0] |= 0xFF;
+	io->GPHEN[0] |= 1 << pin;
 
-irqEnable(49);
-irqEnable(50);
+	//REG(0x4000000C) |= 3;
+
+	irqEnable(49);
+	irqEnable(50);
 	irqEnable(51);
 	irqEnable(52);
 
+}
+
+void clr() {
+	// clear all pendings!
+	if(io->GPEDS[0] & (1 << 20)) {
+		log_msg("> %x\n", io->GPEDS[0]);
+		io->GPEDS[0] = 1 << 20;
+	}
 }

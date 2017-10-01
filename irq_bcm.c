@@ -97,6 +97,7 @@ void irqEnable (const unsigned int irq)
 		enabled[0] |= mask;
 	}
 	else if (irq <= 63) {
+		log_msg("enabled\n");
 		pRegs->Enable2 = mask;
 		enabled[1] |= mask;
 	}
@@ -122,4 +123,11 @@ void irqDisable (const unsigned int irq)
 		pRegs->DisableBasic = mask;
 		enabled[2] &= ~mask;
 	}
+}
+
+void lo() {
+	if(pRegs->IRQBasic != 0 || pRegs->Pending1 != 0 || pRegs->Pending2 != 0) {
+		log_msg("IRQ: %x %x %x\n", pRegs->IRQBasic, pRegs->Pending1, pRegs->Pending2);
+	}
+	clr();
 }

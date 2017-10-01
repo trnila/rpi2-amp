@@ -55,11 +55,11 @@ void taskBlinkLed(void *param) {
 	for(;;) {
 		digitalWrite(conf->pin, HIGH);
 		vTaskDelay(conf->delayOn);
-		log_msg("LED %d %d\n", conf->pin, digitalRead(conf->pin));
+	//	log_msg("LED %d %d\n", conf->pin, digitalRead(conf->pin));
 
 		digitalWrite(conf->pin, LOW);
 		vTaskDelay(conf->delayOff);
-		log_msg("LED %d %d\n", conf->pin, digitalRead(conf->pin));
+	//	log_msg("LED %d %d\n", conf->pin, digitalRead(conf->pin));
 	}
 }
 
@@ -80,9 +80,10 @@ void test() {
 
 void gpio_isr(void *param) {
 	int pin = 20;
-	pinMode(20, INPUT);
+	pinMode(pin, INPUT);
 
 	attachInterrupt(pin, test, 0);
+	log_msg("Configured\n");
 
 	int i = 0;
 	for(;;) {
@@ -93,10 +94,11 @@ void gpio_isr(void *param) {
 
 void kernel_main() {
 	portDISABLE_INTERRUPTS();
+    log_msg("Tes\n");
 
-	/*create_task(task1, "TASK_1", (void*) 8);
-	create_task(task1, "TASK_2", (void*) 10);
-	create_task(task2, "TASK_3", (void*) 16);
+	//create_task(task1, "TASK_1", (void*) 8);
+	//create_task(task1, "TASK_2", (void*) 10);
+	//create_task(task2, "TASK_3", (void*) 16);
 
 	TaskLedConfig ledConf[] = {
 		{
@@ -113,9 +115,9 @@ void kernel_main() {
 		}
 	};
 	create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[0]);
-	create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[1]);*/
+	create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[1]);
 
-    create_task(serial, "SERIAL", 0);
+    //create_task(serial, "SERIAL", 0);
 
 	create_task(gpio_isr, "TASK", NULL);
 
