@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include "FreeRTOSConfig.h"
 
 unsigned int __aeabi_idiv(unsigned int num, unsigned int den) {
 	unsigned int quot = 0, qbit = 1;
@@ -40,4 +41,8 @@ void *memcpy(void *dest, const void *src, size_t n) {
 		d++;
 		s++;
 	}
+}
+
+void __assert_fail(const char * assertion, const char * file, unsigned int line, const char * function) {
+	panic("%s:%d: %s Assertion %s failed.\n", file, line, function, assertion);
 }

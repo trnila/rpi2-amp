@@ -7,6 +7,7 @@ OBJECTS=start.o \
 		timer.o \
 		uart.o \
 		runtime.o \
+		tools/mailbox.o \
 		freertos/croutine.o \
 		freertos/queue.o \
 		freertos/event_groups.o \
@@ -19,7 +20,8 @@ OBJECTS=start.o \
 
 
 CFLAGS=-I. -I./freertos/include/ -I./freertos/ -I./freertos/portable/GCC/RaspberryPi/ -march=armv7-a \
-	   -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual
+	   -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual \
+	   -D BAREMETAL=1
 
 all: app.img
 
@@ -38,6 +40,8 @@ clean:
 	make -C tools clean
 
 run: app.img
+	# TODO: fix
+	rm tools/mailbox.o
 	make -C tools
 	./tools/clearmem || true
 	./tools/devmem2 0x30000000 w 0
