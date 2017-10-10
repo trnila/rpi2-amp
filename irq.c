@@ -47,7 +47,7 @@ void c_irq_handler() {
 		} else {
 			uint32_t val = getTimerCtl();
 			if(val & TIMER_ISTATUS) {
-				setTimerVal(200000);
+				timer_reset();
 				shouldSwitch = xTaskIncrementTick();
 			} else {
 				panic("unknown interrupt val: %d\n", val);

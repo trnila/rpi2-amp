@@ -24,8 +24,7 @@ void task1(void* param) {
 	log_msg("start %d\n", param);
 	for(;;) {
 		log_msg("TICK[%d]: %d\n",  (int) param, i++);
-//		taskYIELD();
-		vTaskDelay((int) param);
+		delay((int) param);
 	}
 }
 
@@ -34,9 +33,7 @@ void task2(void* param) {
 	log_msg("start %d\n", param);
 	for(;;) {
 		log_msg("Different code[%d]: %d\n",  (int) param, i++);
-//		taskYIELD();
-		vTaskDelay((int) param);
-		mailbox_send(0, 1, i);
+		delay((int) param);
 	}
 }
 
@@ -56,11 +53,11 @@ void taskBlinkLed(void *param) {
 
 	for(;;) {
 		digitalWrite(conf->pin, HIGH);
-		vTaskDelay(conf->delayOn);
+		delay(conf->delayOn);
 		log_msg("LED %d %d\n", conf->pin, digitalRead(conf->pin));
 
 		digitalWrite(conf->pin, LOW);
-		vTaskDelay(conf->delayOff);
+		delay(conf->delayOff);
 		log_msg("LED %d %d\n", conf->pin, digitalRead(conf->pin));
 	}
 }
@@ -77,23 +74,21 @@ void create_task(TaskFunction_t fn, const char* name, void* param) {
 }
 
 void kernel_main() {
-	portDISABLE_INTERRUPTS();
-
-	//create_task(task1, "TASK_1", (void*) 8);
-	//create_task(task1, "TASK_2", (void*) 10);
-	create_task(task2, "TASK_3", (void*) 16);
+	//create_task(task1, "TASK_1", (void*) 1000);
+	//create_task(task1, "TASK_2", (void*) 1000);
+	//create_task(task2, "TASK_3", (void*) 1000);
 
 	TaskLedConfig ledConf[] = {
 		{
 			.pin = 2,
-			.delayOn = 8,
-			.delayOff = 20,
-			.initialDelay = 5,
+			.delayOn = 300,
+			.delayOff = 350,
+			.initialDelay = 0,
 		},
 		{
 			.pin = 21,
-			.delayOn = 20,
-			.delayOff = 8,
+			.delayOn = 1000,
+			.delayOff = 1000,
 			.initialDelay = 0,
 		}
 	};

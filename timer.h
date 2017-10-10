@@ -1,3 +1,5 @@
+#pragma once
+
 #define BIT(n) (1 << n)
 
 #define TIMER_ISTATUS BIT(2) // if timer is asserted, ie: reached value
@@ -12,3 +14,7 @@ void setTimerCtl(uint32_t val);
 // CNTP_TVAL, PL1 Physical TimerValue
 // downcounter
 void setTimerVal(uint32_t val);
+
+void timer_init();
+void timer_reset();
+uint32_t getTimerFreq();
