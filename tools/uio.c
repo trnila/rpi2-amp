@@ -8,8 +8,13 @@
 #include "mailbox.h"
 
 int main() {
-
 	mailbox_init();
+
+	char *data = mapPhys(0x20000000, 1024*1024);
+	if(!data) {
+		printf("Could not map memory\n");
+		exit(1);
+	}
 
 	const int max_irq = 9;
 	int fds[max_irq];
@@ -60,7 +65,12 @@ int main() {
 					ssize_t nb;
 					nb = read(fds[i], &info, sizeof(info));
 					if (nb == sizeof(info)) {
-						printf("received %d %d\n", nb, mailbox_read(cpu, mailbox));
+						unsigned int addr = mailbox_read(cpu, mailbox);
+
+						printf("received %d %x\n", nb, addr);
+						printf("'%s'\n", data + (addr - 0x20000000));
+
+
 						mailbox_clear(cpu, mailbox);
 					}
 

@@ -28,12 +28,19 @@ void task1(void* param) {
 	}
 }
 
+char data[10][100];
+
 void task2(void* param) {
 	int i = 0;
 	log_msg("start %d\n", param);
 	for(;;) {
-		log_msg("Different code[%d]: %d\n",  (int) param, i++);
+		log_msg("Different code[%d]: %d\n",  (int) param, i);
 		delay((int) param);
+
+		mini_snprintf(data + i, 100, "hello %d", i);
+		mailbox_send(0, 1, data + i);
+
+		i = (i + 1) % 10;
 	}
 }
 
@@ -76,7 +83,7 @@ void create_task(TaskFunction_t fn, const char* name, void* param) {
 void kernel_main() {
 	//create_task(task1, "TASK_1", (void*) 1000);
 	//create_task(task1, "TASK_2", (void*) 1000);
-	//create_task(task2, "TASK_3", (void*) 1000);
+	create_task(task2, "TASK_3", (void*) 10);
 
 	TaskLedConfig ledConf[] = {
 		{
