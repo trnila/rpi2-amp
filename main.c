@@ -80,10 +80,53 @@ void create_task(TaskFunction_t fn, const char* name, void* param) {
 	}
 }
 
+
+void out(int val, int dataPin, int clkPin) {
+	for(int i = 0; i < 8; i++) {
+		digitalWrite(dataPin, !!(val & (1 << i)));
+		digitalWrite(clkPin, HIGH);
+		digitalWrite(clkPin, LOW);
+	}
+}
+
+void display(void* arg) {
+	const int dataPin = 21;
+	const int clkPin = 20;
+	const int latchPin = 16;
+
+	pinMode(dataPin, OUTPUT);
+	pinMode(clkPin, OUTPUT);
+	pinMode(latchPin, OUTPUT);
+
+	int col = 0;
+	int row = 0;
+	for(;;) {
+		digitalWrite(latchPin, LOW);
+		out(1 << row, dataPin, clkPin);
+		out(0xff, dataPin, clkPin);
+		out(~(1 << col), dataPin, clkPin);
+		out(0xff, dataPin, clkPin);
+		digitalWrite(latchPin, HIGH);
+
+		delay(50);
+
+		col++;
+		if(col > 8) {
+			col = 0;
+			row++;
+			if(row >= 8) {
+				row = 0;
+				log_msg("clr\n");
+			}
+		}
+	}
+}
+
 void kernel_main() {
 	//create_task(task1, "TASK_1", (void*) 1000);
 	//create_task(task1, "TASK_2", (void*) 1000);
-	create_task(task2, "TASK_3", (void*) 10);
+//	create_task(task2, "TASK_3", (void*) 10);
+	create_task(display, "displ", 0);
 
 	TaskLedConfig ledConf[] = {
 		{
@@ -99,7 +142,7 @@ void kernel_main() {
 			.initialDelay = 0,
 		}
 	};
-	create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[0]);
+//	create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[0]);
 	//create_task(taskBlinkLed, "TASK_LED", (void*) &ledConf[1]);
 	//create_task(serial, "SERIAL", 0);
 
