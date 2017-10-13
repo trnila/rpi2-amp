@@ -43,10 +43,13 @@ run: app.img
 	# TODO: fix
 	rm tools/mailbox.o
 	make -C tools
-	./tools/clearmem || true
-	./tools/devmem2 0x30000000 w 0
-	./tools/devmem2 0x30000004 w 0
-	./tools/loadmetal app.img
+	make -C bootloader
+	./tools/firmware_load 0x20000000 ./bootloader/bootloader.img
+	./tools/firmware_load 0x20008000 ./app.img
 	./tools/devmem2 0x400000bc w 0x20000000 # set address of our first instruction
+	./tools/mailbox_send 3 0 1
 
-
+reload: app.img
+	./tools/mailbox_send 3 0 1
+	./tools/firmware_load 0x20008000 ./app.img
+	./tools/mailbox_send 3 0 1

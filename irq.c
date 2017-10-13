@@ -41,10 +41,16 @@ void c_irq_handler() {
 		int source = REG(CORE3_IRQ_SOURCE);
 		for(int i = 0; i < 4; i++) {
 			if(source & (1 << (4 + i))) {
-				log_msg("Triggered irq: %d\n", i);
+				int data = REG(CORE3_MBOX0_RDCLR + i);
+				log_msg("Triggered irq: %d %d\n", i, data);
 
 				// ack mailbox by clearing all bits
 				REG(CORE3_MBOX0_RDCLR + i) = 0xffffffff;
+
+				timer_stop();
+
+				void (*reset)() = 0x20000000;
+				reset();
 			}
 		}
 
