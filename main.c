@@ -74,6 +74,10 @@ void create_task(TaskFunction_t fn, const char* name, void* param) {
 }
 
 void kernel_main() {
+	for(int i = 0; i < 4; i++) {
+		mailbox_enable(i);
+	}
+
 	//create_task(task1, "TASK_1", (void*) 1000);
 	//create_task(task1, "TASK_2", (void*) 1000);
 	//create_task(task2, "TASK_3", (void*) 1000);

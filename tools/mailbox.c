@@ -8,6 +8,9 @@
 
 #define MAILBOX_SET_OFFSET 0x80
 #define MAILBOX_RDCLR_OFFSET 0xC0
+#define MAILBOX_SOURCE_OFFSET 0x50
+
+#define THIS_CORE 3
 
 #if BAREMETAL == 1
 static volatile uint32_t *io = (uint32_t*) PERIPH_BASE;
@@ -42,4 +45,11 @@ unsigned int mailbox_read(int core, int mailbox) {
 	assert(mailbox <= 3);
 
 	return *(io + (MAILBOX_RDCLR_OFFSET + 16 * core + 4 * mailbox) / sizeof(int));
+}
+
+void mailbox_enable(int mailbox) {
+	assert(io != NULL);
+	assert(mailbox <= 3);
+
+	*(io + (MAILBOX_SOURCE_OFFSET + 4 * THIS_CORE) / sizeof(int)) |= 1 << mailbox;
 }

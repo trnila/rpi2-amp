@@ -8,7 +8,6 @@
 
 void c_irq_handler( void ) __attribute__((interrupt("IRQ"), naked));
 
-
 void c_irq_handler() {
 	asm volatile(
 			// we will return to interrupted instruction
@@ -40,18 +39,19 @@ void c_irq_handler() {
 		}
 
 		int source = REG(CORE3_IRQ_SOURCE);
-		if(source & INT_SRC_MBOX3) {
-			// ack mailbox by clearing all bits
-			REG(CORE3_MBOX3_RDCLR) = 0xffffffff;
-			log_msg("mailbox received\n");
-		} else {
-			uint32_t val = getTimerCtl();
-			if(val & TIMER_ISTATUS) {
-				timer_reset();
-				shouldSwitch = xTaskIncrementTick();
-			} else {
-				panic("unknown interrupt val: %d\n", val);
+		for(int i = 0; i < 4; i++) {
+			if(source & (1 << (4 + i))) {
+				log_msg("Triggered irq: %d\n", i);
+
+				// ack mailbox by clearing all bits
+				REG(CORE3_MBOX0_RDCLR + i) = 0xffffffff;
 			}
+		}
+
+		uint32_t val = getTimerCtl();
+		if(val & TIMER_ISTATUS) {
+			timer_reset();
+			shouldSwitch = xTaskIncrementTick();
 		}
 
 		if(shouldSwitch) {
