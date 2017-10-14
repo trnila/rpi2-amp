@@ -84,20 +84,21 @@ continue_boot:
 
         beq loop
 
+    // load jump address from mailbox
+    ldr r2, =0x400000f0
+    ldr r2, [r2]
+
     // ack mailbox
     ldr r0, =0x400000f0
     ldr r1, =0xffffffff
     str r1, [r0]
 
     // jump to new code
-    ldr r0, =new_addr
-    ldr pc, [r0]
+    mov pc, r2
 
 	// program shall not get here, if so, loop forever
 	hang:
 		b hang
-
-new_addr: .word 0x20008000 // address of new code
 
 handle_und:
 	log ERROR_irq_undefined
