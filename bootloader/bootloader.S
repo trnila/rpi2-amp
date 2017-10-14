@@ -74,8 +74,15 @@ continue_boot:
     ldr r1, =1
     str r1, [r0]
 
-    // wait for interrupt
-    wfi
+    loop:
+        // wait for interrupt
+        wfi
+
+        ldr r0, =0x4000006C
+        ldr r0, [r0]
+        tst r0, # 1 << 4
+
+        beq loop
 
     // ack mailbox
     ldr r0, =0x400000f0
