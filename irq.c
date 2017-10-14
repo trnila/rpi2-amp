@@ -49,6 +49,9 @@ void c_irq_handler() {
 
 				timer_stop();
 
+				// switch to SVC mode before returning to bootloader
+				asm volatile("msr cpsr_c, %0":: "r"(0x13));
+
 				void (*reset)() = 0x20000000;
 				reset();
 			}

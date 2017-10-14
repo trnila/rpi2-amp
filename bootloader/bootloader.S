@@ -1,19 +1,31 @@
-.section ".text.startup"
-
 .equ	USR_mode,	0x10
 .equ	FIQ_mode,	0x11
 .equ	IRQ_mode,	0x12
 .equ	SVC_mode,	0x13
 .equ	HYP_mode,	0x1A
 .equ	SYS_mode,	0x1F
+.equ    MASK_mode,  0x1F
 .equ	No_Int,		0xC0
 
+.equ    ERROR_irq_undefined, 1
+.equ    ERROR_irq_swi,       2
+.equ    ERROR_irq_prefetch,  3
+.equ    ERROR_irq_data,      4
+.equ    ERROR_irq_unused,    5
+.equ    ERROR_irq_irq,       6
+.equ    ERROR_irq_fiq,       7
+
 .macro log letter
-	ldr r1,=\letter
-	ldr r2,=0x30000004
+	ldr r1, =\letter
+	ldr r2, =msg_num
 	str r1, [r2]
 .endm
 
+.section ".log", "a"
+    msg_num: .byte 0x0
+
+
+.section ".text.startup"
 _start:
 	ldr pc,reset_handler
 	ldr pc,undefined_handler
@@ -25,47 +37,45 @@ _start:
 	ldr pc,fiq_handler
 	reset_handler:      .word reset
 	undefined_handler:  .word handle_und
-	swi_handler:        .word fail
+	swi_handler:        .word handle_swi
 	prefetch_handler:   .word handle_pref
 	data_handler:       .word handle_data
 	unused_handler:     .word handle_unu
-	irq_handler:        .word fail
-	fiq_handler:        .word fail
+	irq_handler:        .word handle_irq
+	fiq_handler:        .word handle_fiq
 
 reset:
-	log 42
+    // disable irq, fiq
+    cpsid if
 
-mrs r0, cpsr
-eor r0, r0, #0x1a
-tst r0, #0x1f
-bic r0, r0, #0x1f
-orr r0, r0, #0xd3
-bne 1f
-orr r0, r0, #0x100
-adr lr, 2f
-msr spsr_cxsf, r0
-.word 0xe12ef30e /* msr elr_hyp, lr */
-.word 0xe160006e /* eret */
-1:	msr cpsr_c, r0
-2:	nop
+    mrs r0, cpsr            // load current processor status register to r0
+    and r0, r0, #MASK_mode  // mask only processore more
+    cmp r0, #HYP_mode       // compare with hyp mode
+    bne continue_boot       // if not in HYP mode, skip returning
 
-log 43
+    // set saved processor mode to SVC
+    mov r0, # No_Int | SVC_mode
+    msr spsr_c, r0
 
+    // leave HYP mode to saved mode
+    adr lr, 1f
+    .word 0xe12ef30e // msr elr_hyp, lr
+    .word 0xe160006e // eret
+    1:	nop
+
+continue_boot:
 	// set address of our vector table
 	// B4.1.156 VBAR, Vector Base Address Register, Security Extensions in arm_architecture_reference_manual.pdf
 	ldr r0, =_start
 	mcr p15, 0, r0, c12, c0, 0 // write r0 to VBAR
 
+    // enable 0 mailbox on third core
     ldr r0, =0x4000005c
     ldr r1, =1
     str r1, [r0]
 
-    log 0x2e
-
-    cpsid i
-    log 0x2f
+    // wait for interrupt
     wfi
-    log 0x3f
 
     // ack mailbox
     ldr r0, =0x400000f0
@@ -76,35 +86,36 @@ log 43
     ldr r0, =new_addr
     ldr pc, [r0]
 
-
-
-
 	// program shall not get here, if so, loop forever
-	loop:
-		b loop
+	hang:
+		b hang
 
-new_addr: .word 0x20008000
-
-hang:
-	b hang
+new_addr: .word 0x20008000 // address of new code
 
 handle_und:
-	log 'a'
+	log ERROR_irq_undefined
 	b hang
 
+handle_swi:
+    log ERROR_irq_swi
+    b hang
+
 handle_pref:
-	log 'c'
+	log ERROR_irq_prefetch
 	b hang
 
 handle_data:
-	log 'd'
+	log ERROR_irq_data
 	b hang
 
 handle_unu:
-	log 'e'
+	log ERROR_irq_unused
 	b hang
 
-fail:
-	log '9'
-	b fail
+handle_irq:
+	log ERROR_irq_irq
+	b hang
 
+handle_fiq:
+	log ERROR_irq_fiq
+	b hang
