@@ -35,6 +35,10 @@ void timer_init() {
 	setTimerVal(freq);
 }
 
+void timer_stop() {
+	setTimerCtl(0);
+}
+
 void timer_reset() {
 	// tick equals to 1ms
 	setTimerVal(freq / 1000);
