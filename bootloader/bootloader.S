@@ -69,29 +69,53 @@ continue_boot:
 	ldr r0, =_start
 	mcr p15, 0, r0, c12, c0, 0 // write r0 to VBAR
 
-    // enable 0 mailbox on third core
-    ldr r0, =0x4000005c
+initialize_addresses:
+    // store core ID to r5
+    mrc p15, 0, r5, c0, c0, 5 // MPIDR, Multiprocessor Affinity Register, PMSA
+    and r5, r5, #0x7f         // 7 lower bits represents core ID
+
+    // multiply coreID by 4
+    mov r0, #4
+    mul r5, r5, r0 // r5 = coreID * 4
+
+    // r6 = core * 4 + core0_mailbox_ctl
+    ldr r1, =0x40000050 // core0_mailbox_ctl
+    add r6, r5, r1 // r6 = core * 4 + core0_mailbox_ctl
+
+    // r7 = core * 4 + core0_interrupt_sources
+    ldr r1, =0x40000060 // core0_interrupt_sources
+    add r7, r5, r1 // r7 = core * 4 + core_interrupt_sources
+
+
+    // r8 = core * 4 * 4 + core0_mailbox0_rdclr
+    ldr r1, =0x400000C0 // core0_mailbox0_rdclr
+    mul r5, r5, r0 // r5 = coreID * 4 * 4
+    add r8, r5, r1
+
+    // r6 - mailbox ctl for current core
+    // r7 - core interrupt sources
+    // r8 - core mailbox0 rdclr
+main:
+    // enable 0 mailbox
     ldr r1, =1
-    str r1, [r0]
+    str r1, [r6]
 
     loop:
         // wait for interrupt
         wfi
 
-        ldr r0, =0x4000006C
-        ldr r0, [r0]
+        // check if we received mailbox irq
+        ldr r0, [r7]
         tst r0, # 1 << 4
 
         beq loop
 
     // load jump address from mailbox
-    ldr r2, =0x400000f0
-    ldr r2, [r2]
+    ldr r2, [r8]
 
     // ack mailbox
-    ldr r0, =0x400000f0
     ldr r1, =0xffffffff
-    str r1, [r0]
+    str r1, [r8]
 
     // jump to new code
     mov pc, r2
